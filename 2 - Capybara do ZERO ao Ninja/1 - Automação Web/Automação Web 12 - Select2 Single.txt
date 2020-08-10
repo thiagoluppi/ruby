@@ -1,0 +1,177 @@
+Capybara do ZERO ao Ninja > Automação Web > Select2 Single
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos fazer uso da url do professor:
+https://training-wheels-protocol.herokuapp.com/apps/select2/single.html
+
+Vamos aprender a manipular um outro tipo de elemento dropdown, um pouco diferenciado
+
+Vamos criar dentro da pasta spec o arquivo select2_spec.rb
+
+Vamos aprender primeiro o single, que é onde vc seleciona um dos nomes da lista, porém apenas um nome e na próxima aula, selecionaremos vários nomes da lista. O código será quase o mesmo
+por isso vamos montar uma estrutura apenas
+_____________________________________________________________________________________________________
+describe "Select2", :select2 do
+  describe "Single" do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Uma opção"
+    end
+
+    it "faz algo" do
+    end
+  end
+
+  describe "Multiplo" do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    it "faz outro algo" do
+    end
+  end
+end
+_____________________________________________________________________________________________________
+
+
+A primeira coisa a fazer é identificar o elemento que tem o evento de click lá no site do professor
+
+"Como a aplicação lá no site dele dessa vez é uma aplicação angular, vai ficar dificil postar o código html aqui, pois ele é dinamico e complicado"
+
+Não é tão simples de fazer como no exemplo do dropdown, onde tinha um select e as opções, então aqui tem que ir testando, vendo qual dos elementos coloca o foco na caixa de texto e 
+ir tentando encontrar o evento de click
+
+Ao inspecionar o código html da setinha para baixo, eu encontrei esse seguinte código lá:
+<span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span>
+
+Então utilizei a classe ".select2-selection__arrow" para fazer o find:
+_____________________________________________________________________________________________________
+it "seleciona ator por nome" do
+      find(".select2-selection__arrow").click
+end
+_____________________________________________________________________________________________________
+E acabou que deu certo, ele clicou e mostrou os outros elementos da lista. O professor usou uma classe diferente: ".select2-selection--single"
+Testei outra classe e também deu certo: ".select2-selection". Isso demonstra que não necessariamente existe apenas um elemento que o Capybara pode usar para fazer o evento de click
+
+Vou usar o do professor, para caso algo der errado no código mais a frente na aula, eu ter pelo menos, o código todo igual o dele para verificar:
+Então:
+_____________________________________________________________________________________________________
+describe "Select2", :select2 do
+  describe "Single", :single do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Uma opção"
+    end
+
+    it "seleciona ator por nome" do
+      find(".select2-selection--single").click
+    end
+  end
+
+  describe "Multiplo" do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    it "faz outro algo" do
+    end
+  end
+end
+_____________________________________________________________________________________________________
+
+nota sobre algo do html que o professor falou:
+uma "ul" é uma lista no html
+
+
+Após o evento de click do "find" passado, vamos precisar encontrar o elemento do nome do ator que estamos procurando,
+no caso o Adam Sandler
+
+Quando clicamos manualmente na setinha para baixo, um código é exibido no html
+
+<span class="select2-results"> ...
+que parece ser o resultado com a lista, pois como passamos o mouse nesse código html, todos os nomes da lista são postos em foco, ou seja, está aqui dentro.
+
+abaixo dele tem os dois códigos a seguir:
+e logo abaixo deles, o código com o  nome do Adam Sandler, que nós queremos
+<ul class="select2-results__options" role="tree" id="select2-p7oh-results" aria-expanded="true" aria-hidden="false">
+<li class="select2-results__option select2-results__option--highlighted" role="treeitem" aria-selected="true"></li>
+<li class="select2-results__option" id="select2-p7oh-result-82rg-number:1" role="treeitem" aria-selected="false">Adam Sandler</li>
+
+o find será feito assim:
+_____________________________________________________________________________________________________
+describe "Select2", :select2 do
+  # apenas para pular uma linha
+  describe "Single", :single do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Uma opção"
+    end
+
+    it "seleciona ator por nome" do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-results__option", text: "Adam Sandler").click
+      sleep 2
+    end
+  end
+
+  describe "Multiplo" do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    it "faz outro algo" do
+    end
+  end
+end
+_____________________________________________________________________________________________________
+o primeiro find faz o evento de click, para que o outro código seja exibido, do contrário não teria como encontrar o elemento com o segundo find
+o segundo find faz uso da classe select2-results__option, que é inerente a todas as opções da caixa de seleção, por isso tem que passar o texto, para que não dê erro de ambiguidade:
+
+Capybara::Ambiguous: Ambiguous match, found 6 elements matching visible css ".select2-results__option"
+
+Agora vamos criar mais um cenário, onde vamos clicar na caixa de texto, depois digitar o nome do ator e depois clicar nele
+_____________________________________________________________________________________________________
+describe "Select2", :select2 do
+  #
+  describe "Single", :single do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Uma opção"
+    end
+
+    it "seleciona ator por nome" do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-results__option", text: "Adam Sandler").click
+      sleep 2
+    end
+
+    it "busca e clica no ator", :clica do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-search__field").set("Chris Rock")
+      find(".select2-results__option").click
+      sleep 3
+    end
+  end
+
+  describe "Multiplo" do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    it "faz outro algo" do
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Quando vc digita o nome do ator para fazer a pesquisa, o resultado final é apenas um, por isso não precisou passar o text: "nome do ator"
+Estamos usando o recurso do Capybara .set que preenche um campo com um texto
+
+

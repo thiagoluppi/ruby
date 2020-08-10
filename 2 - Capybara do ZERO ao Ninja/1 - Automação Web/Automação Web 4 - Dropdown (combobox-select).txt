@@ -1,0 +1,236 @@
+Capybara do ZERO ao Ninja > Automação Web > Dropdown (combobox/select)
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos aprender a validar dropdown list, ou um combobox
+
+Vamos usar a página:
+https://training-wheels-protocol.herokuapp.com/dropdown
+
+<select id="dropdown" class="avenger-list">
+      <option value="" disabled="disabled" selected="selected">Selecione um personagem</option>
+      <option value="1">Steve Rogers</option>
+      <option value="2">Bucky</option>
+      <option value="3">Tony Stark</option>
+      <option value="4">Natasha Romanoff</option>
+      <option value="5">Bruce Banner</option>
+      <option value="6">Loki</option>
+      <option value="7">Scott Lang</option>
+  </select>
+  
+O Capybara tem um recurso chamado select que vamos usar para validar listas de elementos:
+select("opção", from: "elemento")
+Onde,
+opção = Steve Rogers ou Bucky ou Tony Stark etc...
+elemento = dropdown, que nesse caso é o nome do id desse elemento
+
+Por exemplo, vamos selecionar o Loki dessa lista, para isso vamos codificar assim:
+_____________________________________________________________________________________________________
+describe "Caixa de opções" do
+  it "item específico simples" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    select("Loki", from: "dropdown")
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+Esse sleep é apenas para vermos ele selecionando, senão é rápido demais.
+
+Vamos executar:
+
+λ rspec spec\dropdown_spec.rb -fd
+
+Caixa de opções
+
+DevTools listening on ws://127.0.0.1:54024/devtools/browser/515854ae-7efb-4629-9d6f-50ade6c9050f
+  item específico simples
+
+Finished in 11.17 seconds (files took 1.27 seconds to load)
+1 example, 0 failures
+
+Para não ficarmos toda hora indo até o arquivo x para executar o que queremos, vamos passar a utilizar tags. Tags servem para marcar nossos casos de teste ou até mesmo suites de testes:
+_____________________________________________________________________________________________________
+describe "Caixa de opções", :dropdown do
+  it "item específico simples" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    select("Loki", from: "dropdown")
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+Para usar tags, basta colocar dois pontos e depois o nome da tag que vc deseja, nesse caso :dropdown
+
+λ rspec --tag @dropdown
+
+Run options: include {:dropdown=>true}
+
+DevTools listening on ws://127.0.0.1:54247/devtools/browser/6106c8fb-d0c7-42ef-9701-8b9275521745
+.
+
+Finished in 11.14 seconds (files took 1.28 seconds to load)
+1 example, 0 failures
+
+Também podemos usar o -fd sem problemas:
+
+λ rspec --tag @dropdown -fd
+
+Run options: include {:dropdown=>true}
+
+Caixa de opções
+
+DevTools listening on ws://127.0.0.1:54327/devtools/browser/ec60809b-f632-470d-b134-562af7d52ff2
+  item específico simples
+
+Finished in 11.16 seconds (files took 1.33 seconds to load)
+1 example, 0 failures
+
+Agora vamos imaginar que o esse elemento combobox não tenha o ID, como faremos para selecionar?
+
+Vamos criar mais um caso de teste, onde vamos utilizar o find para fazer essa busca usando um CSS Selector, utilizando a classe desse elemento:
+
+<select id="dropdown" class="avenger-list">
+      <option value="" disabled="disabled" selected="selected">Selecione um personagem</option>
+      <option value="1">Steve Rogers</option>
+      <option value="2">Bucky</option>
+      <option value="3">Tony Stark</option>
+      <option value="4">Natasha Romanoff</option>
+      <option value="5">Bruce Banner</option>
+      <option value="6">Loki</option>
+      <option value="7">Scott Lang</option>
+  </select>
+
+Usaremos o find para selecionar o elemento por sua classe, para fazer isso precisamos utilizar o ponto, mais o nome da classe:
+find(".avenger-list")
+_____________________________________________________________________________________________________
+describe "Caixa de opções", :dropdown do
+  it "item específico simples" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    select("Loki", from: "dropdown")
+  end
+
+  it "item específico com o find" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    drop = find(".avenger-list")
+    drop.find("option", text: "Scott Lang").select_option
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+No código acima criamos uma variável para guardar o elemento em si:
+drop = find(".avenger-list")
+e a partir desse elemento fizemos mais um find para selecionar o que queremos do dropdown list:
+drop.find("option", text: "Scott Lang").select_option
+usamos o option do html, ali em cima, e dizemos ao Capybara qual o texto desse option que queremos, no caso aqui "Scott Lang" e depois usamos o recurso .select_option,
+para que ele selecione o option cujo texto especificamos.
+
+Vamos criar mais um cenário de teste, mas vamos fazer um find um pouco diferente, mais genérico:
+_____________________________________________________________________________________________________
+it "qualquer item", :sample do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    drop = find(".avenger-list")
+    drop.find("option")
+end
+_____________________________________________________________________________________________________
+No código acima, não especificamos mais nada no segundo find. Vamos executar e ver o que acontece:
+
+λ rspec --tag @sample -fd
+
+Run options: include {:sample=>true}
+
+Caixa de opções
+
+DevTools listening on ws://127.0.0.1:55909/devtools/browser/b94de0e8-1856-456c-a508-a89932fb5f26
+  qualquer item (FAILED - 1)
+
+Failures:
+
+  1) Caixa de opções qualquer item
+     Failure/Error: drop.find("option")
+
+     Capybara::Ambiguous:
+       Ambiguous match, found 8 elements matching visible css "option" within #<Capybara::Node::Element tag="select" path="/HTML/BODY[1]/DIV[2]/DIV[1]/DIV[1]/SELECT[1]">
+     # ./spec/dropdown_spec.rb:28:in `block (2 levels) in <top (required)>'
+
+Finished in 10.35 seconds (files took 1.37 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/dropdown_spec.rb:22 # Caixa de opções qualquer item
+
+Deu erro de Ambiguous match, isso significa que com o que eu passei para o Capybara, ele não foi capaz de selecionar o elemento que eu gostaria. Eu preciso ser mais específico
+pois o find só retorna 1 elemento.
+
+Eu quero pegar aleatoriamente uma opção dessa lista e para isso não usaremos o find, mas sim o all. Que retorna um array de elementos:
+_____________________________________________________________________________________________________
+describe "Caixa de opções", :dropdown do
+  it "item específico simples" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    select("Loki", from: "dropdown")
+  end
+
+  it "item específico com o find" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    drop = find(".avenger-list")
+    drop.find("option", text: "Scott Lang").select_option
+    sleep 3
+  end
+
+  it "qualquer item", :amostra do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Dropdown"
+
+    drop = find(".avenger-list")
+    drop.all("option").sample.select_option
+  end
+end
+_____________________________________________________________________________________________________
+No código acima ele vai selecionar aleatoriamente um dos elementos da lista e vai selecionar ele. Isso é bom quando vc não precisa selecionar exatamente um elemento da lista.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

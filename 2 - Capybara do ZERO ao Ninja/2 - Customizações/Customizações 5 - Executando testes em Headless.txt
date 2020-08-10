@@ -1,0 +1,87 @@
+Capybara do ZERO ao Ninja > Customizações > Executando testes em Headless
+_____________________________________________________________________________________________________
+
+Nessa aula vamos executar os testes em headless, significa que quando mandarmos executar o teste a janela do navegador não vai subir, teremos apenas seu resultado
+
+E para fazer isso é bem simples, vamos apenas adicionar uma palavra ao arquivo spec_helper.rb e tudo vai executar desse modo:
+config.default_driver = :selenium_chrome_headless
+
+O código todo vai ficar assim:
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+
+  config.before(:example) do
+    page.current_window.resize_to(1280, 800)
+  end
+
+  config.after(:example) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "").tr(" ", "_")
+    page.save_screenshot("log/#{nome}.png") if (e.exception)
+  end
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome_headless
+  config.default_max_wait_time = 5
+  config.app_host = "https://training-wheels-protocol.herokuapp.com/"
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

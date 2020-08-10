@@ -1,0 +1,14 @@
+class Carro
+  attr_accessor :nome
+
+  def ligar
+    puts "vc ligou o carro"
+  end
+end
+
+carro = Carro.new
+
+carro.nome = "Civic"
+puts carro.nome
+
+carro.ligar

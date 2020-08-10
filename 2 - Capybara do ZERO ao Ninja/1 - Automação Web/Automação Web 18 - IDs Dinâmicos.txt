@@ -1,0 +1,57 @@
+Capybara do ZERO ao Ninja > Automação Web > IDs Dinâmicos
+_____________________________________________________________________________________________________
+
+Nessa aula vamos aprender a validar elementos que possuam IDs dinâmicos
+
+Vamos criar um novo arquivo na pasta spec: id_dinamicos_spec.rb
+
+Vamos usar a url
+https://training-wheels-protocol.herokuapp.com/access
+
+_____________________________________________________________________________________________________
+describe "IDs Dinâmicos", :ids do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login com Cadastro"
+  end
+
+  it "cadastro" do
+    find("#PortalTheme_wt10_block_wtcontent_holder_wt8_wtUsernameInput").set("Thiago")
+    find("#PasswordInput_wt11_PortalTheme_wt7_block_wtcontent_holder_wt8_wt").set("Luppi")
+    find("#PortalTheme_wt4_block_wtGetStartedButton_wtcontent_holder_OSCore_wt3_block").click
+
+    expect(page).to have_content "Dados enviados. Aguarde aprovação do seu cadastro!"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima estamos pegando os IDs dos campos Usuário e Senha e também estamos pegando o ID do link estilizado como botão Criar Conta
+Porém eles são dinâmicos e isso não vai dar certo, pois a cada vez que a tela do site for carregada, esse ID vai mudar alguma coisa que vai invalidar essa automação
+
+Para resolver esse, possível, problema vamos usar um seletor CSS e uma expressão regular:
+vamos fazer um input[id=UsernameInput], pois essa parte do id jamais muda e na vida real também é assim, mesmo os IDs dinâmicos, têm partes que não mudam
+
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

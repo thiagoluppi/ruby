@@ -1,0 +1,115 @@
+Ruby for Testes > Ruby OO > Construtores
+_____________________________________________________________________________________________________
+
+Iremos usar o mesmo exemplo da aula passada classes.rb, mas iremos usar contrutor para não precisar inicializar a variável.
+
+Construtores são métodos que são executados no momento da instancia de uma classe qualquer. Para isso é usado a palavra reservada "initialize" e ela deve ser colocada dentro da classe que vc quer.
+
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo
+
+  def deposita(valor)
+    self.saldo += valor
+    puts "Depositando a quantia de #{valor} reais."
+  end
+end
+
+conta = Conta.new
+conta.saldo = 0.0
+
+conta.deposita(100.00)
+puts "Seu saldo agora é de #{conta.saldo}"
+_____________________________________________________________________________________________________
+Código sem construtor acima tendo sua variável inicializada
+
+
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo
+
+  def initialize
+    self.saldo = 0.0
+  end
+
+  def deposita(valor)
+    self.saldo += valor
+    puts "Depositando a quantia de #{valor} reais."
+  end
+end
+
+conta = Conta.new
+
+conta.deposita(100.00)
+puts "Seu saldo agora é de #{conta.saldo}"
+_____________________________________________________________________________________________________
+No código acima perceba que dentro do construtor não é usado a variável de instancia saldo e sim o self.saldo, pois o construtor está se referindo ao próprio atributo
+
+
+Vamos melhorar um pouco nossa conta colocando também um nome de cliente, para isso dentro do construtor vamos receber o argumento nome e vamos colocar mais um atributo de Conta:
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo, :nome
+
+  def initialize(nome)
+    self.saldo = 0.0
+    self.nome = nome
+  end
+
+  def deposita(valor)
+    self.saldo += valor
+    puts "Depositando a quantia de #{valor} reais na conta de #{self.nome}"
+  end
+end
+
+conta = Conta.new("Thiago")
+
+conta.deposita(100.00)
+puts "Saldo de #{conta.nome} agora é de #{conta.saldo}"
+
+conta.deposita(10.00)
+puts "Saldo de #{conta.nome} agora é de #{conta.saldo}"
+_____________________________________________________________________________________________________
+No código acima perceba que o construtor initialize agora recebe um argumento nome e dentro do construtor fazemos o encapsulamento de self.nome = nome, dessa forma o método deposita pode usar o nome
+recebido através do construtor e usar ele no puts
+No momento que vc instancia a variável conta agora é necessário passar o argumento conta = Conta.new("Thiago"), senão o construtor não funciona.
+Fora do método, quando vamos usar o nome, temos que acessar ele através da variável de instancia conta.nome.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

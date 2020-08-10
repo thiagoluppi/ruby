@@ -1,0 +1,303 @@
+Capybara do ZERO ao Ninja > Automação Web > iFrames Bons e Ruins
+_____________________________________________________________________________________________________
+
+
+https://training-wheels-protocol.herokuapp.com/nice_iframe
+https://training-wheels-protocol.herokuapp.com/bad_iframe
+
+vamos criar o arquivo iframes_spec.rb na pasta spec
+
+iFrame é um recurso do html para exibir um outro site dentro de um site
+
+Vamos falar primeiro sobre iFrames bons. Um iFrame bom é um iFrame bem estruturado, com nome e ID
+
+Vamos criar a estrutura básica da nossa automação:
+_____________________________________________________________________________________________________
+describe "iFrames" do
+  describe "iFrame bom", :bom do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Bom"
+    end
+
+    it "adicionar ao carrinho" do
+    end
+  end
+
+  describe "iFrame ruim", :ruim do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Ruim"
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Vamos começar adicionando um item ao carrinho, porém esse item está dentro de um iFrame, ou seja, está dentro de uma página externa
+e aqui vamos usar um recurso de escopo do Capybara, porém, um escopo de iFrame, o within_frame e vamos pegar ou o ID ou o Name desse iFrame
+
+<iframe id="burgerId" name="burger" src="https://enjoeat.herokuapp.com/restaurants/burger-house/menu" 
+width="100%" height="1200" scrolling="no" frameborder="0"></iframe>
+_____________________________________________________________________________________________________
+describe "iFrames" do
+  describe "iFrame bom", :bom do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Bom"
+    end
+
+    it "adicionar ao carrinho", :adicionar do
+      within_frame("burgerId") do
+        produto = find(".menu-item-info-box", text: "REFRIGERANTE")
+        produto.find("a").click
+      end
+    end
+  end
+
+  describe "iFrame ruim", :ruim do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Ruim"
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Repare que dentro do parenteses do within_frame não precisamos colocar o # para pegar o ID
+Então pegamos o ID do iFrame e usamos ele no within_frame e a partir dele, do escopo dele, passamos a fazer nossas buscas
+Criamos a variável produto para armazenar nossa busca do produto, que nesse caso é o refrigerante. Pegamos direto na div, que é o elemento mais "pai" dos produtos:
+se digitarmos no console do chrome o seguinte comando de jquery: $(".menu-item-info-box") veremos que ele vai trazer 3 caixas de produtos, por isso temos que especificar o text: "REFRIGERANTE", 
+senão da erro de ambiguidade, pois o Capybara não sabe qual deles vc quer.
+
+<div class="menu-item-info-box" style="opacity: 1;">
+    <span class="menu-item-info-box-icon">
+      <img src="assets/img/foods/coke.png"></span>
+
+    <div class="menu-item-info-box-content">
+      <span class="menu-item-info-box-text">Refrigerante</span>
+      <span class="menu-item-info-box-detail">O refri mais gelado da cidade.</span>
+      <span class="menu-item-info-box-price">R$&nbsp;4,50</span>
+      <a class="add-to-cart"><i class="fa fa-plus-circle"></i> Adicionar</a>
+    </div>
+    
+</div>
+
+Depois disso usamos a variável produto e fazemos uma busca no escopo do refrigerante pelo botão de adicionar ao carrinho, e vamos lançar o evento de click
+Como no escopo de refrigerante, ou seja, dentro dessa div só tem um link, podemos usar apenas o nome do link no html que é representado pela letra "a" e lançar o evento de click,
+poderíamos ter usado também o seguinte:
+produto.find(".add-to-cart").click
+
+E agora precisamos validar se esse item foi adicionado ao carrinho, checando o cart, ou o carrinho de compras:
+
+<div class="box box-solid" id="cart">
+  <div class="box-header">
+    <i class="fa fa-shopping-cart"></i>
+
+    <h3 class="box-title">Carrinho</h3>
+  </div>
+  
+  <div class="box-body">
+
+    <!---->
+    <!----><div class="table-responsive">
+        <table class="table">
+          <tbody>
+          <!----><tr class="" style="opacity: 1;">
+            <th>(1x) Refrigerante</th>
+            <td class="text-right">R$&nbsp;4,50</td>
+            <td class="text-right">
+              <a class="btn btn-sm danger"><i class="fa fa-remove"></i></a>
+            </td>
+          </tr>
+          <tr>
+            <th>Total:</th>
+            <td class="text-right">R$&nbsp;4,50</td>
+          </tr>
+        </tbody></table>
+      </div>
+  </div>
+  <!----><div class="box-footer">
+    <div class="pull-right">
+      <button class="btn btn-danger" type="button"><i class="fa fa-trash"></i> Limpar</button>
+      <a class="btn btn-success" href="/order"><i class="fa fa-credit-card"></i> Fechar Pedido</a>
+    </div>
+  </div>
+</div>
+
+Vamos utilizar o id de <div class="box box-solid" id="cart">
+_____________________________________________________________________________________________________
+describe "iFrames" do
+  describe "iFrame bom", :bom do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Bom"
+    end
+
+    it "adicionar ao carrinho", :adicionar do
+      within_frame("burgerId") do
+        produto = find(".menu-item-info-box", text: "REFRIGERANTE")
+        produto.find("a").click
+
+        expect(find("#cart")).to have_content "R$ 4,50"
+      end
+    end
+  end
+
+  describe "iFrame ruim", :ruim do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Ruim"
+    end
+  end
+end
+_____________________________________________________________________________________________________
+
+
+Agora vamos ver o iFrame ruim
+
+Lembrando que um iFrame ruim é aquele que não tem nem ID, nem name, mas vamos tentar fazer assim mesmo, pegando pela classe desse iFrame: box-iframe
+_____________________________________________________________________________________________________
+describe "iFrames" do
+  describe "iFrame bom", :bom do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Bom"
+    end
+
+    it "adicionar ao carrinho" do
+      within_frame("burgerId") do
+        produto = find(".menu-item-info-box", text: "REFRIGERANTE")
+        produto.find("a").click
+
+        expect(find("#cart")).to have_content "R$ 4,50"
+      end
+    end
+  end
+
+  describe "iFrame ruim", :ruim do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Ruim"
+    end
+
+    it "carrinho deve estar vazio" do
+      within_frame(".box-iframe") do
+        expect(find("#cart")).to have_content "Seu carrinho está vazio!"
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+E vamos executar essa automação:
+λ rspec --tag @ruim
+
+Run options: include {:ruim=>true}
+
+DevTools listening on ws://127.0.0.1:55262/devtools/browser/47ff2164-5500-4e0f-86ad-22bf6c6cff86
+[3060:10688:0424/184951.419:ERROR:browser_switcher_service.cc(238)] XXX Init()
+[3060:10688:0424/184958.689:ERROR:device_event_log_impl.cc(162)] [18:49:58.689] Bluetooth: bluetooth_adapter_winrt.cc:1055 Getting Default Adapter failed.
+F
+
+Failures:
+
+  1) iFrames iFrame ruim carrinho deve estar vazio
+     Failure/Error:
+       within_frame(".box-iframe") do
+         expect(find("#cart")).to have_content "Seu carrinho está vazio!"
+       end
+
+     Capybara::ElementNotFound:
+       Unable to find frame ".box-iframe"
+     # ./spec/iframes_spec.rb:29:in `block (3 levels) in <top (required)>'
+
+Finished in 16.6 seconds (files took 1.32 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/iframes_spec.rb:28 # iFrames iFrame ruim carrinho deve estar vazio
+
+
+E nesses casos não podemos usar o within_frame, pois ele não funciona
+
+Para resolver isso, vamos manipular o código html, adicionando um id temporário, através do código de jquery: $(".box-iframe").attr("id", "tempId");
+estamos buscando pel classe .box-iframe estamos adicionando um id temporário a ela com o recurso attr
+
+Vamos inserir isso no nosso código:
+_____________________________________________________________________________________________________
+describe "iFrames" do
+  describe "iFrame bom", :bom do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Bom"
+    end
+
+    it "adicionar ao carrinho" do
+      within_frame("burgerId") do
+        produto = find(".menu-item-info-box", text: "REFRIGERANTE")
+        produto.find("a").click
+
+        expect(find("#cart")).to have_content "R$ 4,50"
+      end
+    end
+  end
+
+  describe "iFrame ruim", :ruim do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+
+      click_link "iFrame Ruim"
+    end
+
+    it "carrinho deve estar vazio" do
+      script = '$(".box-iframe").attr("id", "tempId");'
+      page.execute_script(script)
+
+      within_frame("tempId") do
+        expect(find("#cart")).to have_content "Seu carrinho está vazio!"
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+criamos a variável script que vai receber esse script de jquery e note que precisamos colocar tudo dentro de aspas simples '$(".box-iframe").attr("id", "tempId");'
+Depois mandamos executar esse script na página através do comando page.execute_script passando a variável criada.
+Por fim colocamos o nome do id que injetamos na página e o within_frame agora pode localizar o iFrame que antes não podia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

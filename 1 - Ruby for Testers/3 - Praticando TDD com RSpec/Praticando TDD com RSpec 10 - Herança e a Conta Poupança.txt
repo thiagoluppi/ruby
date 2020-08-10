@@ -1,0 +1,652 @@
+Ruby for Testes > Praticando TDD com RSpec > Herança e a Conta Poupança
+_____________________________________________________________________________________________________
+
+Nessa aula vamos implementar o saque também em conta poupança, e para isso vamos renomear nosso arquivo de saque para:
+saque_conta_corrente_spec.rb
+
+Vamos criar também dentro da pasta spec, uma outra pasta chamada bank:
+spec/bank
+
+E vamos mover o arquivo recém renomeado para lá, ficando assim:
+
+unitarios
+	- app
+		- bank.rb
+	- spec
+		- bank
+			saque_conta_corrente_spec.rb
+		- avengers_spec.rb
+		- exemplos_spec.rb
+		- spec_helper.rb
+	- .rspec
+	- Gemfile
+	- Gemfile.lock
+	
+Vamos criar uma cópia de saque_conta_corrente_spec.rb dentro de spec/bank e renomear o arquivo para:
+saque_conta_poupanca_spec.rb
+
+ficando assim:
+
+unitarios
+	- app
+		- bank.rb
+	- spec
+		- bank
+			- saque_conta_corrente_spec.rb
+			- saque_conta_poupanca_spec.rb
+		- avengers_spec.rb
+		- exemplos_spec.rb
+		- spec_helper.rb
+	- .rspec
+	- Gemfile
+	- Gemfile.lock
+
+Vamos agora refatorar todo esse código para refletir a realidade de uma conta poupança, trocando onde era ContaCorrente para ContaPoupança e para todo o resto que fizer sentido
+
+Para ContaPoupança a única diferença que teremos será a de que: o limite de saque não será de 700.00, mas sim de 500.00, ficando assim:
+_____________________________________________________________________________________________________
+context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(1000.00)
+        @conta_poupanca.saca(701.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Limite máximo por saque é de R$ 500"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_poupanca.saldo).to eql 1000.00
+      end
+    end
+_____________________________________________________________________________________________________
+O código completo vai ficar assim:
+_____________________________________________________________________________________________________
+require_relative "../app/bank"
+
+describe ContaPoupanca do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(1000.00)
+        @conta_poupanca.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_poupanca.saldo).to eql 800.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(0.00)
+        @conta_poupanca.saca(100.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e saldo permanece zerado" do
+        expect(@conta_poupanca.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(500.00)
+        @conta_poupanca.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_poupanca.saldo).to eql 500.00
+      end
+    end
+
+    context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(1000.00)
+        @conta_poupanca.saca(701.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Limite máximo por saque é de R$ 500"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_poupanca.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar para ver o que acontece:
+
+E para isso vamos ter que passar o caminho de onde o arquivo está agora:
+
+λ rspec spec\bank\saque_conta_poupanca_spec.rb -fd
+
+An error occurred while loading ./spec/bank/saque_conta_poupanca_spec.rb. - Did you mean?
+                    rspec ./spec/bank/saque_conta_corrente_spec.rb
+
+Failure/Error: require_relative "../app/bank"
+
+LoadError:
+  cannot load such file -- c:/qafullstack/ruby/unitarios/spec/app/bank
+# ./spec/bank/saque_conta_poupanca_spec.rb:1:in `require_relative'
+# ./spec/bank/saque_conta_poupanca_spec.rb:1:in `<top (required)>'
+No examples found.
+
+Finished in 0.00003 seconds (files took 0.23658 seconds to load)
+0 examples, 0 failures, 1 error occurred outside of examples
+
+Porém encontramos um erro, pois o caminho relativo mudou ao criarmos a pasta bank
+
+unitarios
+	- app		<== E novamente, precisamos importar daqui
+		- bank.rb
+	- spec		<== Com o nosso require_relative chegamos apenas até aqui
+		- bank  <== Estamos aqui
+			- saque_conta_corrente_spec.rb
+			- saque_conta_poupanca_spec.rb
+		- avengers_spec.rb
+		- exemplos_spec.rb
+		- spec_helper.rb
+	- .rspec
+	- Gemfile
+	- Gemfile.lock
+	
+E para subir dois níveis vamos fazer assim:
+
+require_relative "../../app/bank"
+
+Vamos executar novamente para ver o que acontece:
+
+λ rspec spec\bank\saque_conta_poupanca_spec.rb -fd
+
+An error occurred while loading ./spec/bank/saque_conta_poupanca_spec.rb.
+Failure/Error:
+  describe ContaPoupanca do
+    describe "Saque" do
+      context "quando o valor é positivo" do
+        before(:all) do
+          @conta_poupanca = ContaPoupanca.new(1000.00)
+          @conta_poupanca.saca(200.00)
+        end
+
+        it "então atualiza saldo" do
+          expect(@conta_poupanca.saldo).to eql 800.00
+
+NameError:
+  uninitialized constant ContaPoupanca
+# ./spec/bank/saque_conta_poupanca_spec.rb:3:in `<top (required)>'
+No examples found.
+
+Finished in 0.00003 seconds (files took 0.25582 seconds to load)
+0 examples, 0 failures, 1 error occurred outside of examples
+
+Não encontrou a classe ContaPoupança, pois ela não existe!
+
+Então vamos criar essa classe também, e o código vai ficar assim:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 700.00)
+      self.mensagem = "Limite máximo por saque é de R$ 700"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+class ContaPoupanca
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 500.00)
+      self.mensagem = "Limite máximo por saque é de R$ 500"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar mais uma vez:
+
+λ rspec spec\bank\saque_conta_poupanca_spec.rb -fd
+
+ContaPoupanca
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+    quando o saldo é zero
+      então exibe mensagem
+      e saldo permanece zerado
+    quando o saldo é insuficiente
+      então exibe mensagem
+      e o saldo permanece o mesmo
+    quando supera o limite de saque
+      então exibe mensagem
+      e o saldo permanece o mesmo
+
+Finished in 0.00761 seconds (files took 0.2094 seconds to load)
+7 examples, 0 failures
+
+Porém é claro que estamos duplicando código desnecessariamente e vamos deixar isso bem melhor utilizando herança.
+
+Primeiramente vamos fazer assim, deixaremos os atributos e o construtor dentro de uma outra classe que chamaremos de Conta:
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+end
+
+class ContaCorrente < Conta
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 700.00)
+      self.mensagem = "Limite máximo por saque é de R$ 700"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+class ContaPoupanca < Conta
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 500.00)
+      self.mensagem = "Limite máximo por saque é de R$ 500"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+_____________________________________________________________________________________________________
+No código acima as classes ContaCorrente e ContaPoupanca agora herdam Conta e desse modo compartilham os atributos e o construtor, porém podemos fazer ainda melhor.
+
+Vamos colocar dentro da super-classe o método saca também, que irá receber o limite máximo de saque por argumento:
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor, saque_max)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > saque_max)
+      self.mensagem = "Limite máximo por saque é de R$ #{saque_max}"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+class ContaCorrente < Conta
+  def saca(valor, saque_max = 700)
+    super
+  end
+end
+
+class ContaPoupanca < Conta
+  def saca(valor, saque_max = 500)
+    super
+  end
+end
+_____________________________________________________________________________________________________
+No código acima criamos mais um argumento para o método saca e fazemos com que esse novo argumento seja enviado pela classe que chama o método
+A classe que chama o método agora além de passar o valor que precisa ser sacado, também define a quantia máxima do saque em si.
+Reparem que usamos a palavra reservada do ruby "super" que utiliza justamente o método de mesmo nome, porém da super-classe. 
+Por isso o método saca, dentro da classe filha, não tem implementação nenhuma, apenas recebe e passa argumentos, pois a execução mesmo acontece na super-classe
+
+Vamos executar os dois arquivos agora:
+
+λ rspec spec\bank\ -fd
+
+ContaCorrente
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+    quando o saldo é zero
+      então exibe mensagem
+      e saldo permanece zerado
+    quando o saldo é insuficiente
+      então exibe mensagem
+      e o saldo permanece o mesmo
+    quando supera o limite de saque
+      então exibe mensagem
+      e o saldo permanece o mesmo
+
+ContaPoupanca
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+    quando o saldo é zero
+      então exibe mensagem
+      e saldo permanece zerado
+    quando o saldo é insuficiente
+      então exibe mensagem
+      e o saldo permanece o mesmo
+    quando supera o limite de saque
+      então exibe mensagem
+      e o saldo permanece o mesmo
+
+Finished in 0.01297 seconds (files took 0.20916 seconds to load)
+14 examples, 0 failures
+
+Agora vamos supor que o cliente pediu para que uma taxa seja cobrada na hora de sacar da conta poupança e da conta corrente.
+Para conta corrente uma taxa de R$5,00 será cobrada
+Para conta poupança uma taxa de R$2,00 será cobrada
+
+Como vamos implementar isso?
+
+Muito fácil, por causa do modo como estruturamos o projeto:
+
+O método saca da super-classe vai receber agora uma taxa como argumento:
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor, saque_max, taxa)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > saque_max)
+      self.mensagem = "Limite máximo por saque é de R$ #{saque_max}"
+    else
+      self.saldo -= valor + taxa
+    end
+  end
+end
+
+class ContaCorrente < Conta
+  def saca(valor, saque_max = 700, taxa = 5.00)
+    super
+  end
+end
+
+class ContaPoupanca < Conta
+  def saca(valor, saque_max = 500, taxa = 2.00)
+    super
+  end
+end
+_____________________________________________________________________________________________________
+Teremos também que implementar essa mudança nos testes, para que as validações agora correspondam a essas taxas:
+_____________________________________________________________________________________________________
+saque_conta_corrente_spec.rb
+
+context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 795.00
+      end
+    end
+
+##########
+
+saque_conta_poupanca_spec.rb
+
+context "quando o valor é positivo" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(1000.00)
+        @conta_poupanca.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_poupanca.saldo).to eql 798.00
+      end
+    end
+_____________________________________________________________________________________________________
+Pois agora o saldo final tem que contemplar a taxa também
+
+O código final vai ficar assim:
+_____________________________________________________________________________________________________
+bank.rb
+
+class Conta
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor, saque_max, taxa)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > saque_max)
+      self.mensagem = "Limite máximo por saque é de R$ #{saque_max}"
+    else
+      self.saldo -= valor + taxa
+    end
+  end
+end
+
+class ContaCorrente < Conta
+  def saca(valor, saque_max = 700, taxa = 5.00)
+    super
+  end
+end
+
+class ContaPoupanca < Conta
+  def saca(valor, saque_max = 500, taxa = 2.00)
+    super
+  end
+end
+
+###############
+
+saque_conta_corrente_spec.rb
+
+require_relative "../../app/bank"
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 795.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(0.00)
+        @conta_corrente.saca(100.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e saldo permanece zerado" do
+        expect(@conta_corrente.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(500.00)
+        @conta_corrente.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 500.00
+      end
+    end
+
+    context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(701.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Limite máximo por saque é de R$ 700"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+
+##############
+
+saque_conta_poupanca_spec.rb
+
+require_relative "../../app/bank"
+
+describe ContaPoupanca do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(1000.00)
+        @conta_poupanca.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_poupanca.saldo).to eql 798.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(0.00)
+        @conta_poupanca.saca(100.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e saldo permanece zerado" do
+        expect(@conta_poupanca.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(500.00)
+        @conta_poupanca.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_poupanca.saldo).to eql 500.00
+      end
+    end
+
+    context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_poupanca = ContaPoupanca.new(1000.00)
+        @conta_poupanca.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_poupanca.mensagem).to eql "Limite máximo por saque é de R$ 500"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_poupanca.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

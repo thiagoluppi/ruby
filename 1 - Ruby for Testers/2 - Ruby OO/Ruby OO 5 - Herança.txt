@@ -1,0 +1,141 @@
+Ruby for Testes > Ruby OO > Herança
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos usar herança e para isso vou colocar apenas o código final onde mostra as classes já com herança:
+_____________________________________________________________________________________________________
+class Veiculo
+  attr_accessor :nome, :marca, :modelo
+
+  def initialize(nome, marca, modelo)
+    self.nome = nome
+    self.marca = marca
+    self.modelo = modelo
+  end
+
+  def ligar
+    puts "O veiculo #{self.nome} foi ligado"
+  end
+
+  def buzinar
+    puts "O veiculo #{self.nome} acabou de buzinar, Beep! Beep!"
+  end
+end
+
+class Carro < Veiculo
+  def dirigir
+    puts "O carro #{self.nome} está iniciando o trajeto"
+  end
+end
+
+class Moto < Veiculo
+  def pilotar
+    puts "A moto #{self.nome} está iniciando o trajeto"
+  end
+end
+
+carro = Carro.new("Uno", "Fiat", "Mile")
+
+puts carro.nome
+puts carro.marca
+puts carro.modelo
+
+puts carro.ligar
+puts carro.buzinar
+puts carro.dirigir
+
+carro_2 = Carro.new("Escort", "Ford", "EX")
+
+puts carro_2.nome
+puts carro_2.marca
+puts carro_2.modelo
+
+puts carro_2.ligar
+puts carro_2.buzinar
+puts carro_2.dirigir
+
+moto = Moto.new("Ténéré", "Yamaha", "Adventure")
+
+puts moto.nome
+puts moto.marca
+puts moto.modelo
+
+puts moto.ligar
+puts moto.buzinar
+puts moto.pilotar
+_____________________________________________________________________________________________________
+Nesse código acima temos carros e motos, ambos têm métodos em comum que são: ligar e buzinar e esses métodos são colocados em uma super-classe chamada veiculo
+para que desse modo ambos possam ter acesso sem precisar repetir código tendo esses métodos individuais nas classes Carro e Moto.
+O construtor também foi implementado dentro da classe Veiculo, dado que Carro e Moto compartilham todos eles e não podem deixar isso individuais em suas classes para não repetir código
+
+A execução desse código vai ficar assim:
+
+λ ruby heranca.rb
+Uno
+Fiat
+Mile
+O veiculo Uno foi ligado
+
+O veiculo Uno acabou de buzinar, Beep! Beep!
+
+O carro Uno está iniciando o trajeto
+
+Escort
+Ford
+EX
+O veiculo Escort foi ligado
+
+O veiculo Escort acabou de buzinar, Beep! Beep!
+
+O carro Escort está iniciando o trajeto
+
+Ténéré
+Yamaha
+Adventure
+O veiculo Ténéré foi ligado
+
+O veiculo Ténéré acabou de buzinar, Beep! Beep!
+
+A moto Ténéré está iniciando o trajeto
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,249 @@
+Capybara do ZERO ao Ninja > Automação Web > Select2 Multiple
+_____________________________________________________________________________________________________
+
+Nessa aula vamos usar o mesmo completar o código da aula passada, a parte do select multiplo
+
+select2_spec.rb
+
+Vamos usar a url:
+https://training-wheels-protocol.herokuapp.com/apps/select2/multi.html
+
+_____________________________________________________________________________________________________
+describe "Select2", :select2 do
+  #
+  describe "Single", :single do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Uma opção"
+    end
+
+    it "seleciona ator por nome" do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-results__option", text: "Adam Sandler").click
+      sleep 2
+    end
+
+    it "busca e clica no ator", :clica do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-search__field").set("Chris Rock")
+      find(".select2-results__option").click
+      sleep 3
+    end
+  end
+
+  describe "Multiplo" do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    it "faz outro algo" do
+    end
+  end
+end
+_____________________________________________________________________________________________________
+
+Vamos completar esse código para selecionar vários atores naquela lista agora.
+
+Mais uma vez, como o código html do site é mais complicado, temos que observar e primeiro descobrir o evento de click, em seguida precisamos digitar o nome do ator e depois clicar nesse ator
+nesse momento, diferente do outro exemplo, o site nos permitirá fazer isso até tenhamos selecionado todos os atores da lista, se assim quisermos.
+
+O código vai ficar assim:
+_____________________________________________________________________________________________________
+find(".select2-selection--multiple").click
+find(".select2-search__field").set("Jim Carrey")
+find(".select2-results__option").click
+_____________________________________________________________________________________________________
+O primeiro find vai simplesmente nos dar o evento de click do campo.
+O segundo find vai permitir a digitação
+O terceiro find vai clicar no único ator que estará disponível após a digitação
+
+Mas, e se quisermos então selecionar um outro ator, tendo esse já selecionado?
+
+podemos simplesmente repetir o código e isso vai acontecer sem problemas:
+_____________________________________________________________________________________________________
+find(".select2-selection--multiple").click
+find(".select2-search__field").set("Jim Carrey")
+find(".select2-results__option").click
+
+find(".select2-selection--multiple").click
+find(".select2-search__field").set("Chris Rock")
+find(".select2-results__option").click
+_____________________________________________________________________________________________________
+Esse código acima vai funcionar perfeitamente, porém fica feio, com código repetido e não é elegante
+
+Se estamos repetindo código podemos criar um método para fazer isso:
+_____________________________________________________________________________________________________
+describe "Multiplo", :multiplo do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    def selecione(ator)
+      find(".select2-selection--multiple").click
+      find(".select2-search__field").set(ator)
+      find(".select2-results__option").click
+    end
+
+    it "seleciona atores" do
+      selecione("Jim Carrey")
+      selecione("Chris Rock")
+      sleep 2
+    end
+end
+_____________________________________________________________________________________________________
+Criamos um método que recebe o nome do ator como string e depois fazemos o resto, sem repetir código
+
+Tem uma maneira ainda melhor de buscar pelo nome de mais de um ator, usando um laço de repetição e um array:
+_____________________________________________________________________________________________________
+describe "Multiplo", :multiplo do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    def selecione(ator)
+      find(".select2-selection--multiple").click
+      find(".select2-search__field").set(ator)
+      find(".select2-results__option").click
+    end
+
+    it "seleciona atores" do
+      atores = ["Jim Carrey", "Chris Rock", "Owen Wilson"]
+
+      atores.each do |a|
+        selecione(a)
+      end
+
+      sleep 3
+    end
+end
+_____________________________________________________________________________________________________
+each é um laço de repetição que é muito usado para percorrer um array. Foi criada a variável de laço "a", apenas para representar atores
+e essa variável é enviada ao método como argumento
+
+
+
+
+Dei uma brincada com o site do professor e criei mais alguns metodos e casos de teste:
+_____________________________________________________________________________________________________
+describe "Select2", :select2 do
+  #
+  describe "Single", :single do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Uma opção"
+    end
+
+    it "seleciona ator por nome" do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-results__option", text: "Adam Sandler").click
+      sleep 2
+    end
+
+    it "busca e clica no ator", :clica do
+      find(".select2-selection--single").click
+      sleep 2
+      find(".select2-search__field").set("Chris Rock")
+      find(".select2-results__option").click
+      sleep 3
+    end
+  end
+
+  describe "Multiplo", :multiplo do
+    before(:each) do
+      visit "https://training-wheels-protocol.herokuapp.com/"
+      click_link "Select2 - Multiplas opções"
+    end
+
+    def selecione_digit(ator)
+      find(".select2-selection--multiple").click
+      find(".select2-search__field").set(ator)
+      find(".select2-results__option").click
+    end
+
+    def selecione_clicando(ator)
+      find(".select2-selection--multiple").click
+      find(".select2-results__option", text: ator).click
+    end
+
+    def remover(ator)
+      span = find(".select2-selection--multiple")
+      choice = span.find(".select2-selection__choice", text: ator)
+      choice.find(".select2-selection__choice__remove").click
+    end
+
+    it "seleciona atores digitando" do
+      atores = ["Jim Carrey", "Chris Rock", "Owen Wilson"]
+
+      atores.each do |a|
+        selecione_digit(a)
+      end
+
+      sleep 1
+    end
+
+    it "seleciona atores clicando", :clicando do
+      selecione_clicando("Adam Sandler")
+      selecione_clicando("Owen Wilson")
+    end
+
+    it "removendo atores selecionados", :remove do
+      selecione_clicando("Adam Sandler")
+      selecione_clicando("Jim Carrey")
+      selecione_clicando("Owen Wilson")
+      sleep 1
+
+      remover("Adam Sandler")
+      sleep 1
+      remover("Owen Wilson")
+
+      sleep 1
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Crei o método pra adicionar atores sem digitar o nome deles, apenas clicando em seus nomes e seu respectivo caso de teste
+O mais desafiador foi remover os nomes dos atores da lista, tem um método para isso e seu caso de teste também.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

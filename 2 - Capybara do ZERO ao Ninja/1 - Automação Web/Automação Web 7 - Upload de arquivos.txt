@@ -1,0 +1,223 @@
+Capybara do ZERO ao Ninja > Automação Web > Upload de arquivos
+_____________________________________________________________________________________________________
+
+Vamos usar o elemento de upload de arquivos para fazer o upload de uma foto e de um arquivo de texto para um site
+https://training-wheels-protocol.herokuapp.com/upload
+
+<input id="file-upload" type="file" name="file">
+
+Vamos criar uma pasta fixtures dentro da pasta spec e vamos colocar o arquivo de imagem e o arquivo de texto dentro dela
+Fazendo isso, o primeiro passo é identificar os arquivos que estão no projeto e guardar esses arquivos dentro de variáveis
+
+Essas variáveis vão armazenar o caminho completo dos arquivos. Então dentro de before, vamos fazer isso:
+Vamos invocar a classe Dir e o método pwd
+texto = Dir.pwd
+o método dir retorna o caminho do diretório de execução do projeto. Como esses arquivos podem estar em diferentes lugares, invocando essa classe com esse método
+faz com que peguemos o caminho correto, independente de onde ele esteja, dado que ele está em nosso projeto, a partir desse ponto, vc monta o caminho relativo até ele, 
+passando a pasta specs/fixtures/texto.txt
+
+_____________________________________________________________________________________________________
+describe "Upload", :upload do
+  before(:each) do
+    @texto = Dir.pwd + "/spec/fixtures/texto.txt"
+
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Upload de arquivos"
+  end
+
+  it "upload com arquivo texto" do
+    puts @texto
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+No código acima passamos então o caminho relativo até o arquivo que queremos fazer o upload: texto.txt
+Como a variável desse arquivo está dentro do bloco do before, precisamos fazer dela uma variável de instancia, por isso o @
+
+Vamos executar para ver o caminho que ele pegou:
+λ rspec --tag @upload
+
+Run options: include {:upload=>true}
+c:/qafullstack/ruby/capy/spec/fixtures/texto.txt
+.
+
+Finished in 3 seconds (files took 1.43 seconds to load)
+1 example, 0 failures
+
+Repare que ele pegou o caminho "c:/qafullstack/ruby/" ao usarmos a classe Dir com o método pwd: Dir.pwd e o restante nós criamos "/spec/fixtures/texto.txt"
+
+Então está certinho, mas vamos ter certeza dando um cat nesse arquivo também:
+
+λ cat c:/qafullstack/ruby/capy/spec/fixtures/texto.txt
+Documento de texto
+
+Vamos fazer o mesmo para o caminho de imagem e deixar as duas massas de teste preparadas:
+_____________________________________________________________________________________________________
+describe "Upload", :upload do
+  before(:each) do
+    @texto = Dir.pwd + "/spec/fixtures/texto.txt"
+    @galaxy = Dir.pwd + "/spec/fixtures/galaxy.jpg"
+
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Upload de arquivos"
+  end
+
+  it "upload com arquivo texto" do
+   
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+Removemos os puts, pois não vamos mais precisar dele. Vamos completar o código com um recurso do Capybara:
+Vamos olhar novamente a estrutura html para anexar o arquivo ao site:
+
+<input id="file-upload" type="file" name="file">
+
+attach_file("ID do elemento", @Variável do arquivo), ficando assim:
+_____________________________________________________________________________________________________
+describe "Upload", :upload do
+  before(:each) do
+    @texto = Dir.pwd + "/spec/fixtures/texto.txt"
+    @galaxy = Dir.pwd + "/spec/fixtures/galaxy.jpg"
+
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Upload de arquivos"
+  end
+
+  it "upload com arquivo texto" do
+    attach_file("file-upload", @texto)
+    click_button "Upload"
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+O arquivo será anexado ao site e logo após isso o site exibe uma div com o seguinte html:
+
+<div id="uploaded-file" class="panel text-center">
+    texto.txt
+</div>
+
+Então vamos validar agora essa div para ter certeza de que o arquivo está lá
+_____________________________________________________________________________________________________
+describe "Upload", :upload do
+  before(:each) do
+    @texto = Dir.pwd + "/spec/fixtures/texto.txt"
+    @galaxy = Dir.pwd + "/spec/fixtures/galaxy.jpg"
+
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Upload de arquivos"
+  end
+
+  it "upload com arquivo texto" do
+    attach_file("file-upload", @texto)
+    click_button "Upload"
+
+    div_arquivo = find("#uploaded-file")
+    expect(div_arquivo.text).to eql "texto.txt"
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+div_arquivo = find("#uploaded-file")
+Então nós procuramos o elemento usando seu ID e guardamos o elemento na variável div_arquivo
+
+expect(div_arquivo.text).to eql "texto.txt"
+Depois criamos o expect com o texto dessa variável e comparamos com o texto que deveria estar lá.
+
+Agora vamos criar o caso de teste para subir o arquivo de imagem e para isso vamos ver como ele fica no site, vamos ver seu html após o upload:
+
+<img id="new-image" src="/uploads/galaxy.jpg" alt="Upload image" width="40%" style="display: inline-block;">
+
+Vamos usar o id desse elemento e vamos também verificar se no atributo src temos o nome da imagem que passamos pro site:
+_____________________________________________________________________________________________________
+describe "Upload", :upload do
+  before(:each) do
+    @texto = Dir.pwd + "/spec/fixtures/texto.txt"
+    @galaxy = Dir.pwd + "/spec/fixtures/galaxy.jpg"
+
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Upload de arquivos"
+  end
+
+  it "upload com arquivo texto" do
+    attach_file("file-upload", @texto)
+    click_button "Upload"
+
+    div_arquivo = find("#uploaded-file")
+    expect(div_arquivo.text).to eql "texto.txt"
+  end
+
+  it "upload arquivo de imagem" do
+    attach_file("file-upload", @galaxy)
+    click_button "Upload"
+
+    sleep 5
+    div_galaxy = find("#new-image")
+
+    expect(div_galaxy[:src]).to include "/uploads/galaxy.jpg"
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+
+_____________________________________________________________________________________________________
+Mais uma vez usamos o ID do elemento e guardamos em uma variável:
+div_galaxy = find("#new-image")
+
+E dessa vez não vamos pegar o texto do elemento, vamos pegar um atributo do elemento, por isso fizemos:
+expect(div_galaxy[:src])
+A partir do momento que temos o elemento em uma variável, temos acesso a seus atributos também:
+<img id="new-image" src="/uploads/galaxy.jpg" alt="Upload image" width="40%" style="display: inline-block;">
+Nesse caso, o src, que é o source, é onde está o arquivo de imagem. Para se usar um atributo, temos que usar os dois pontos :src
+Usamos o .to include e passamos parte do texto, pois no site aparece o caminho inteiro de src: https://training-wheels-protocol.herokuapp.com/uploads/galaxy.jpg
+Mas como precisamos apenas garantir que o nome da foto que fizemos o upload esteja lá, então não precisamos do caminho todo.
+
+Esse sleep de 5 é para o Capybara esperar 5 segundos antes de procurar pelo elemento em find("#new-image"), isso se dá porque o site demora para receber a imagem. Vamos tratar dele na próxima aula.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,266 @@
+Ruby for Testes > Praticando TDD com RSpec > Mão na massa - Conta Corrente
+_____________________________________________________________________________________________________
+
+
+Vamos criar uma conta corrente e um método para ela chamado de saca. Vamos utilizar o arquivo da aula passada Estórias de Usuário - Ninja Bank
+
+Cenário: Saque em conta corrente
+Dado que eu tenho R$ 1000 em minha conta corrente
+Quando faço um saque de R$ 200
+Então meu saldo final deve ser R$ 800
+
+...
+
+_____________________________________________________________________________________________________
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        conta_corrente = ContaCorrente.new(1000.00)
+        conta_corrente.saca(200.00)
+      end
+      it "então atualiza saldo" do
+        expect(conta_corrente.saldo).to eql 800.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+No código acima o describe ContaCorrente vai ser a suite de teste para validar a conta corrente
+o describe "Saque" é uma "sub-suite" para implementar o método de sacar
+o context "quando o valor é positivo" o professor quis implementar o contexto do gherkin, porém para fins didáticos, vamos fazer com código e não com BDD mesmo
+
+Vamos executar apenas essa automação:
+
+λ rspec spec\saque_spec.rb
+
+An error occurred while loading ./spec/saque_spec.rb.
+Failure/Error:
+  describe ContaCorrente do
+    describe "Saque" do
+      context "quando o valor é positivo" do
+        before(:all) do
+          conta_corrente = ContaCorrente.new(1000.00)
+          conta_corrente.saca(200.00)
+        end
+        it "então atualiza saldo" do
+          expect(conta_corrente.saldo).to eql 800.00
+        end
+
+NameError:
+  uninitialized constant ContaCorrente
+# ./spec/saque_spec.rb:3:in `<top (required)>'
+No examples found.
+
+
+Finished in 0.00003 seconds (files took 0.41735 seconds to load)
+0 examples, 0 failures, 1 error occurred outside of examples
+
+O primeiro erro que dá é que ContaCorrente não existe, pois ainda não criamos, então vamos criar:
+_____________________________________________________________________________________________________
+class ContaCorrente
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        conta_corrente = ContaCorrente.new(1000.00)
+        conta_corrente.saca(200.00)
+      end
+      it "então atualiza saldo" do
+        expect(conta_corrente.saldo).to eql 800.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+E agora vamos executar mais uma vez para pegar o próximo erro:
+
+λ rspec spec\saque_spec.rb
+F
+
+Failures:
+
+  1) ContaCorrente Saque quando o valor é positivo então atualiza saldo
+     Failure/Error: conta_corrente = ContaCorrente.new(1000.00)
+
+     ArgumentError:
+       wrong number of arguments (given 1, expected 0)
+     # ./spec/saque_spec.rb:9:in `initialize'
+     # ./spec/saque_spec.rb:9:in `new'
+     # ./spec/saque_spec.rb:9:in `block (4 levels) in <top (required)>'
+
+Finished in 0.00681 seconds (files took 0.20596 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/saque_spec.rb:12 # ContaCorrente Saque quando o valor é positivo então atualiza saldo
+
+O erro acima está dizendo que para instanciar ContaCorrente ele não espera nenhum argumento, porém eu estou passando 1:
+conta_corrente = ContaCorrente.new(1000.00)
+Não há um construtor que diz que precisa de argumento, por isso o erro ocorreu
+
+Vamos corrigir isso então criando o construtor que recebe um argumento e também, claro, um atributo saldo, usando attr_accessor que vai fazer o encapsulamento do código
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar o código mais uma vez para ver qual o próximo erro:
+
+λ rspec spec\saque_spec.rb
+F
+
+Failures:
+
+  1) ContaCorrente Saque quando o valor é positivo então atualiza saldo
+     Failure/Error: conta_corrente.saca(200.00)
+
+     NoMethodError:
+       undefined method `saca' for #<ContaCorrente:0x0000000003616e00 @saldo=1000.0>
+     # ./spec/saque_spec.rb:15:in `block (4 levels) in <top (required)>'
+
+Finished in 0.0069 seconds (files took 0.20306 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/saque_spec.rb:17 # ContaCorrente Saque quando o valor é positivo então atualiza saldo
+
+Agora ele diz que o método saca não existe, por isso vamos implementar o método saca também:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    self.saldo -= valor
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        conta_corrente = ContaCorrente.new(1000.00)
+        conta_corrente.saca(200.00)
+      end
+      it "então atualiza saldo" do
+        expect(conta_corrente.saldo).to eql 800.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar o código mais uma vez para ver o próximo erro:
+
+λ rspec spec\saque_spec.rb
+F
+
+Failures:
+
+  1) ContaCorrente Saque quando o valor é positivo então atualiza saldo
+     Failure/Error: expect(conta_corrente.saldo).to eql 800.00
+
+     NameError:
+       undefined local variable or method `conta_corrente' for #<RSpec::ExampleGroups::ContaCorrente::Saque::QuandoOValorPositivo:0x000000000366f3e8>
+       Did you mean?  contain_exactly
+     # ./spec/saque_spec.rb:22:in `block (4 levels) in <top (required)>'
+
+Finished in 0.0069 seconds (files took 0.19848 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/saque_spec.rb:21 # ContaCorrente Saque quando o valor é positivo então atualiza saldo
+
+O erro acima se refere ao escopo: a variável conta_corrente não existe dentro do escopo do it "então atualiza saldo", apenas dentro do contexto do before. 
+Para resolver isso temos que transformar a variável de instancia, em uma variável de instancia mesmo, colocando o @ na frente dela. Assim ela se torna visivel para todos:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    self.saldo -= valor
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar mais uma vez:
+
+λ rspec spec\saque_spec.rb -fd
+
+ContaCorrente
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+
+Finished in 0.0043 seconds (files took 0.20543 seconds to load)
+1 example, 0 failures
+
+Agora tudo passa. Isso é desenvolvimento guiado por testes (TDD - Test Driven Development), onde vc primeiro implementa o teste e depois desenvolve o software pra passar nesse teste
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

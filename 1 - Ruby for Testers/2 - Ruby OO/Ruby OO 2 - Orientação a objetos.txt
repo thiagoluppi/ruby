@@ -1,0 +1,89 @@
+Ruby for Testes > Ruby OO > Orientação a objetos
+
+_____________________________________________________________________________________________________
+
+
+Vamos criar um arquivo chamado classes.rb (de novo)
+
+_____________________________________________________________________________________________________
+class Conta
+  def deposita(valor)
+    puts "Depositando a quantia de #{valor} reais."
+  end
+end
+
+conta = Conta.new
+
+conta.deposita(100.00)
+_____________________________________________________________________________________________________
+No código acima vemos a linha
+puts "Depositando a quantia de #{valor} reais."
+O #{valor} bem no meio da string se trata de uma interpolação, desse modo não precisamos converter a variável que antes dava erro de tipagem:
+puts "Depositando a quantia de " + valor.to_s + " reais." >>> puts "Depositando a quantia de #{valor} reais."
+
+Porém, o código acima não deposita nada realmente, pois não há um cálculo envolvido no método, vamos fazer isso:
+
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo
+
+  def deposita(valor)
+    self.saldo += valor
+    puts "Depositando a quantia de #{valor} reais."
+  end
+end
+
+conta = Conta.new
+
+conta.deposita(100.00)
+puts conta.saldo
+_____________________________________________________________________________________________________
+No código acima agora criamos um atributo para Conta, chamado saldo e o método agora faz um cálculo somando valor ao saldo, como num depósito de dinheiro normal
+Porém ao executar o código ele dá um erro:
+
+λ ruby classes.rb
+
+Traceback (most recent call last):
+        1: from classes.rb:14:in `<main>'
+classes.rb:7:in `deposita': undefined method `+' for nil:NilClass (NoMethodError)
+
+Esse erro é de tipagem, pois a variável saldo não foi inicializada e como isso aconteceu, ela é nula, quando valor é um float. Não dá para somar nulo com float.
+Para resolver isso vamos apenas inicializar a variável saldo e tudo ficará bem, mas precisamos inicializar ela como float, por isso usamos "conta.saldo = 0.0"
+
+O código vai ficar assim:
+_____________________________________________________________________________________________________
+class Conta
+  attr_accessor :saldo
+
+  def deposita(valor)
+    self.saldo += valor
+    puts "Depositando a quantia de #{valor} reais."
+  end
+end
+
+conta = Conta.new
+conta.saldo = 0.0
+
+conta.deposita(100.00)
+puts "Seu saldo agora é de #{conta.saldo}"
+_____________________________________________________________________________________________________
+No código acima novamente foi usado interpolação para exibir o saldo final do cliente (ultima linha)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

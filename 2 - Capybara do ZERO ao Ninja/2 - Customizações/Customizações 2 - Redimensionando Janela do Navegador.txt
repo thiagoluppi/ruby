@@ -1,0 +1,80 @@
+Capybara do ZERO ao Ninja > Customizações > Redimensionando Janela do Navegador
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos aprender apenas a definir um tamanho de tela do browser padrão para cada teste no momento da execução
+
+Vamos utilizar o arquivo hello_spec.rb e adicionar um código em seu before:
+_____________________________________________________________________________________________________
+describe "Meu primeiro script", :hello, :smoke do
+  before(:each) do
+    page.current_window.resize_to(1280, 800)
+  end
+
+  it "acessar a página" do
+    visit "/"
+    expect(page.title).to eql "Training Wheels Protocol"
+  end
+end
+_____________________________________________________________________________________________________
+Porém, é claro, podemos colocar esse código no spec helper, assim não precisamos colocar em cada novo teste que vamos fazer.
+
+Então vamos recortar esse código de hello_spec.rb e vamos colocar direto lá:
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+
+  config.before(:example) do
+    page.current_window.resize_to(1280, 800)
+  end
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome
+  config.default_max_wait_time = 5
+  config.app_host = "https://training-wheels-protocol.herokuapp.com/"
+end
+_____________________________________________________________________________________________________
+
+Então nós adicionamos apenas o código:
+
+config.before(:example) do
+    page.current_window.resize_to(1280, 800)
+end
+
+Esse :example é o que representa os "it"s, a nomemclatura é exemplos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

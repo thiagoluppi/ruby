@@ -1,0 +1,127 @@
+Capybara do ZERO ao Ninja > Automação Web > Mouse hover
+_____________________________________________________________________________________________________
+
+Hovers
+
+Para essa aula vamos usar a seguinte url do site do professor:
+
+https://training-wheels-protocol.herokuapp.com/hovers
+
+Vamos criar um arquivo na pasta spec chamado hovers_spec.rb e inicialmente vamos criar a estrutura básica dos nossos projetos nele também:
+_____________________________________________________________________________________________________
+describe "Mouse hover", :hovers do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Hovers"
+  end
+  
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+
+Ao acessar o link do hovers vamos clicar com o direito na foto do blade e inspecionar o código, visualizando sua estrutura:
+
+<div class="figure">
+    <img src="/img/avatars/marvel/2.jpg" alt="Blade" style="width: 200px;">
+    <div class="figcaption">
+      <h5>Nome: Blade</h5>
+    </div>
+</div>
+
+Vamos fazer um find com um seletor CSS pegando img[alt=Blade] e apenas isso já vai garantir que selecionamos a imagem do Blade:
+_____________________________________________________________________________________________________
+describe "Mouse hover", :hovers do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Hovers"
+  end
+
+  it "quando passo o mouse sobre Blade" do
+    card = find("img[alt=Blade]")
+    card.hover
+
+    expect(page).to have_content "Nome: Blade"
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+No código acima usamos o seletor CSS para encontar o elemento do card do Blade e o guardamos na variável card
+Após isso, usamos a variável card e usamos o recurso .hover que faz o evento de passa o mouse sobre algo
+Depois fazemos a validação da página como um todo e validamos se ela tem, em seu código html, a string "Nome: Blade"
+
+Vamos implementar agora para o Pantera Negra:
+_____________________________________________________________________________________________________
+describe "Mouse hover", :hovers do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Hovers"
+  end
+
+  it "quando passo o mouse sobre Blade" do
+    card = find("img[alt=Blade]")
+    card.hover
+
+    expect(page).to have_content "Nome: Blade"
+  end
+
+  it "quando o mouse sobre Pantera Negra", :pantera do
+    card = find("img[alt='Pantera Negra']")
+    card.hover
+
+    expect(page).to have_content "Nome: Pantera Negra"
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Observe o seletor CSS do find do Pantera Negra, como ele é uma palavra composta, temos que passar ele com aspas simples. Senão o teste dá errado.
+Quando estamos usando um atributo de um seletor CSS que tem caracteres especiais ou espaços em branco, precisamos, obrigatoriamente, colocar entre aspas simples: 'Pantera Negra'
+
+Vamos implementar o ultimo cenário de teste:
+_____________________________________________________________________________________________________
+describe "Mouse hover", :hovers do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Hovers"
+  end
+
+  it "quando passo o mouse sobre Blade", :blade do
+    card = find("img[alt=Blade]")
+    card.hover
+
+    expect(page).to have_content "Nome: Blade"
+  end
+
+  it "quando o mouse sobre Pantera Negra", :pantera do
+    card = find("img[alt='Pantera Negra']")
+    card.hover
+
+    expect(page).to have_content "Nome: Pantera Negra"
+  end
+
+  it "quando o mouse sobre Homem Aranha", :aranha do
+    card = find("img[alt='Homem Aranha']")
+    card.hover
+
+    expect(page).to have_content "Nome: Homem Aranha"
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+

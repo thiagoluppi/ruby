@@ -1,0 +1,446 @@
+Capybara do ZERO ao Ninja > Automação Web > Verificando dados em tabelas
+_____________________________________________________________________________________________________
+
+https://training-wheels-protocol.herokuapp.com/tables
+
+Vamos criar o arquivo em spec tabelas_spec.rb
+
+Criando a estrutura básica do nosso projeto:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "pega o Tony Stark na lista" do
+    expect(page).to have_content "Robert Downey Jr"
+  end
+end
+_____________________________________________________________________________________________________
+E vamos começar pegando o Tony Stark na tabela e para isso vamos começar apenas verificando o nome do ator que o fez
+vamos supor que vc tenha cadastrado esses atores e quer saber apenas se na página tem o nome do ator que fez o Tony Stark,
+então a verificação acima, apesar de bem fraquinha, vai servir por enquanto, pois só tem um ator que fez Tony Stark
+
+
+Porém, vamos supor que vc precise também validar se na tabela foi cadastrado o salario correto dele e vc faça algo assim:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "pega o Tony Stark na lista" do
+    expect(page).to have_content "Robert Downey Jr"
+  end
+
+  it "deve exibir o salario de Stark" do
+    expect(page).to have_content "10.000.00"
+  end
+end
+_____________________________________________________________________________________________________
+Já dá pra perceber que dessa forma não estamos com certeza validando que o salário dele é mesmo os dez milhões pois existem mais salários ali que o são também:
+
+Ator				Personagem				Filme				Salário			Instagram			Ações
+Robert Downey Jr	Homem de Ferro			Vingadores			$ 10.000.000	@robertdowneyjr		edit delete
+Vin Diesel			Domic Toreto			Velozes e Furiosos	$ 10.000.000	@vindiesel			edit delete
+Chris Pratt			Senhor das Estrelas		Vingadores			$ 10.000.000	@prattprattpratt	edit delete
+Chadwick Boseman	Pantera Negra			Vingadores			$ 700.000		@chadwickboseman	edit delete
+Chris Evans			Capitão América			Vingadores			$ 7.000.000		@teamcevans			edit delete
+
+Se inspecionarmos essa tabela, veremos que ela é um elemento do tipo "tables"
+os títulos, Ator, Personagem etc... são "thead"
+o blocos de atores seria o "tbody"
+e logo abaixo disso tudo os "tr" os, "tr" são as linhas da tabela
+por isso todos eles têm tr
+
+table > tbody > tr
+
+<table id="actors" class="tablesorter">
+    <thead>
+      <tr>
+        <th><span>Ator</span></th>
+        <th><span>Personagem</span></th>
+        <th><span>Filme</span></th>
+        <th><span>Salário</span></th>
+        <th><span>Instagram</span></th>
+        <th><span>Ações</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="actor">Robert Downey Jr</td>
+        <td>Homem de Ferro</td>
+        <td>Vingadores</td>
+        <td>$ <span class="pay">10.000.000</span></td>
+        <td>@robertdowneyjr</td>
+        <td>
+          <a href="#" class="edit">edit
+          </a><a href="#" class="delete">delete
+        </a></td>
+      </tr>
+      <tr>
+        <td class="actor">Vin Diesel</td>
+        <td>Domic Toreto</td>
+        <td>Velozes e Furiosos</td>
+        <td>$ <span class="pay">10.000.000</span></td>
+        <td>@vindiesel</td>
+        <td>
+          <a href="#" class="edit">edit
+          </a><a href="#" class="delete">delete
+        </a></td>
+      </tr>
+      <tr>
+        <td class="actor">Chris Pratt</td>
+        <td>Senhor das Estrelas</td>
+        <td>Vingadores</td>
+        <td>$ <span class="pay">10.000.000</span></td>
+        <td>@prattprattpratt</td>
+        <td>
+          <a href="#" class="edit">edit
+          </a><a href="#" class="delete">delete
+        </a></td>
+      </tr>
+      <tr>
+        <td class="actor">Chadwick Boseman</td>
+        <td>Pantera Negra</td>
+        <td>Vingadores</td>
+        <td>$ <span class="pay">700.000</span></td>
+        <td>@chadwickboseman</td>
+        <td>
+          <a href="#" class="edit">edit
+          </a><a href="#" class="delete">delete
+        </a></td>
+      </tr>
+      <tr>
+        <td class="actor">Chris Evans</td>
+        <td>Capitão América</td>
+        <td>Vingadores</td>
+        <td>$ <span class="pay">7.000.000</span></td>
+        <td>@teamcevans</td>
+        <td>
+          <a href="#" class="edit">edit
+          </a><a href="#" class="delete">delete
+        </a></td>
+      </tr>
+    </tbody>
+</table>
+
+
+Podemos então montar um seletor CSS find("table tbody tr"), porém isso apenas daria erro de ambiquidade, pois ele encontraria 5 registros
+
+Para começar a resolver isso vamos mudar nosso find para all("table tbody tr") e vamos salvar isso em uma variável:
+atores = all("table tbody tr") e agora eu tenho uma coleção de atores
+
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    expect(page).to have_content "10.000.00"
+  end
+end
+_____________________________________________________________________________________________________
+Dispensamos o primeiro caso de teste, pois ele não será mais necessário
+
+A variável atores recebe uma coleção de "trs" e agora precisamos validar, qual delas é o Robert Downey Jr
+
+para fazer isso, vamos usar um recurso do Ruby chamado detect:
+atores.detect { |ator| }
+é tipo um atores.each, ele vai percorrer a coleção de "trs" e para cada linha vai colocar na variável |ator|
+ai eu vou perguntar: para cada ator, o texto contém "Robert Downey Jr"?
+atores.detect { |ator| ator.text.include? "Robert Downey Jr"}
+
+Vamos ver isso no código:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+    puts stark.text
+    expect(page).to have_content "10.000.00"
+  end
+end
+_____________________________________________________________________________________________________
+o puts é somente para vermos
+
+Vamos executar:
+λ rspec --tag @tabs
+
+Run options: include {:tabs=>true}
+
+DevTools listening on ws://127.0.0.1:52796/devtools/browser/6f6e8930-504f-4361-88be-3b15cfceeccf
+[10964:13568:0425/092930.938:ERROR:browser_switcher_service.cc(238)] XXX Init()
+Robert Downey Jr Homem de Ferro Vingadores $ 10.000.000 @robertdowneyjr edit delete
+.
+
+Finished in 8.2 seconds (files took 1.3 seconds to load)
+1 example, 0 failures
+
+Podemos ver que ele trouxe a linha:
+Robert Downey Jr Homem de Ferro Vingadores $ 10.000.000 @robertdowneyjr edit delete
+
+e apenas ela, por isso vamos validar de outro modo agora:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+    puts stark.text
+    expect(stark.text).to include "10.000.000"
+  end
+end
+_____________________________________________________________________________________________________
+Desse modo garantimos que estamos checando apenas na linha correta
+
+Existe outro modo de fazer essa assertividade apenas na linha também:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+
+    expect(stark.text).to include "10.000.000"
+  end
+
+  it "deve exibir o salario de Vin Diesel" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+    expect(diesel).to have_content "10.000.000"
+  end
+end
+_____________________________________________________________________________________________________
+fazendo um find e procurando por um texto especifico também dá certo
+
+Vamos criar mais algumas automações para verificar que dá pra fazer diferentes validações dessa forma:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+
+    expect(stark.text).to include "10.000.000"
+  end
+
+  it "deve exibir o salario de Vin Diesel" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+    expect(diesel).to have_content "10.000.000"
+  end
+
+  it "deve exibir o filme velozes" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+    expect(diesel).to have_content "Velozes e Furiosos"
+  end
+end
+_____________________________________________________________________________________________________
+
+Agora vamos checar exatamente na coluna de filmes na linha do vindiesel:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+
+    expect(stark.text).to include "10.000.000"
+  end
+
+  it "deve exibir o salario de Vin Diesel" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+    expect(diesel).to have_content "10.000.000"
+  end
+
+  it "deve exibir o filme velozes" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+
+    movie = diesel.all("td")[2].text
+
+    expect(movie).to eql "Velozes e Furiosos"
+  end
+end
+_____________________________________________________________________________________________________
+pegamos a variável diesel e no escopo dela usamos o recurso all, trazendo todos os "td", porém na posição 2 e extraimos o texto
+abaixo a explicação com o código html da página
+Desse modo podemos usar o eql, pois estamos filtrando bastante e temos certeza de que só teremos esse texto pra validar.
+
+<tr>
+	<td class="actor">Vin Diesel</td> 	>>>>>>> 0
+	<td>Domic Toreto</td>				>>>>>>> 1
+	<td>Velozes e Furiosos</td>			>>>>>>> 2
+	<td>$ <span class="pay">10.000.000</span></td>
+	<td>@vindiesel</td>
+	<td>
+	  <a href="#" class="edit">edit
+	  </a><a href="#" class="delete">delete
+	</a></td>
+</tr>
+
+Mais um cenário para treinar:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+
+    expect(stark.text).to include "10.000.000"
+  end
+
+  it "deve exibir o salario de Vin Diesel" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+    expect(diesel).to have_content "10.000.000"
+  end
+
+  it "deve exibir o filme velozes" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+
+    movie = diesel.all("td")[2].text
+
+    expect(movie).to eql "Velozes e Furiosos"
+  end
+
+  it "deve exibir o instagram do Chris Evans" do
+    evans = find("table tbody tr", text: "Chris Evans")
+    insta = evans.all("td")[4].text
+
+    expect(insta).to eql "@teamcevans"
+  end
+end
+_____________________________________________________________________________________________________
+
+Agora vamos fazer o click no edit e delete:
+_____________________________________________________________________________________________________
+describe "Tabelas", :tabs do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Tabelas"
+  end
+
+  it "deve exibir o salario de Stark" do
+    atores = all("table tbody tr")
+
+    stark = atores.detect { |ator| ator.text.include?("Robert Downey Jr") }
+
+    expect(stark.text).to include "10.000.000"
+  end
+
+  it "deve exibir o salario de Vin Diesel" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+    expect(diesel).to have_content "10.000.000"
+  end
+
+  it "deve exibir o filme velozes" do
+    diesel = find("table tbody tr", text: "@vindiesel")
+
+    movie = diesel.all("td")[2].text
+
+    expect(movie).to eql "Velozes e Furiosos"
+  end
+
+  it "deve exibir o instagram do Chris Evans" do
+    evans = find("table tbody tr", text: "Chris Evans")
+    insta = evans.all("td")[4].text
+
+    expect(insta).to eql "@teamcevans"
+  end
+
+  it "deve selecionar Chris Prat para remoção" do
+    prat = find("table tbody tr", text: "Chris Pratt")
+    prat.find("a", text: "delete").click
+    msg = page.driver.browser.switch_to.alert.text
+
+    expect(msg).to eql "Chris Pratt foi selecionado para remoção!"
+  end
+
+  it "deve selecionar Chris Prat para edição" do
+    prat = find("table tbody tr", text: "Chris Pratt")
+    prat.find("a", text: "edit").click
+    msg = page.driver.browser.switch_to.alert.text
+
+    expect(msg).to eql "Chris Pratt foi selecionado para edição!"
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

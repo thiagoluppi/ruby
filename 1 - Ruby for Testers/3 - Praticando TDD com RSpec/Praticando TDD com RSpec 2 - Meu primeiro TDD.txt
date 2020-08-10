@@ -1,0 +1,355 @@
+Ruby for Testes > Praticando TDD com RSpec > Meu primeiro TDD
+_____________________________________________________________________________________________________
+
+Vamos começar criando um arquivo dentro de spec chamado avengers_spec.rb
+
+_____________________________________________________________________________________________________
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq).to eql "Spiderman"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima podemos verificar que foi criada uma classe chamada AvengersHeadQuarters, porém ela não foi implementada
+e esse é o x da questão, queremos que dê erro mesmo, pois estamos falando de TDD (Test Driven Development)
+
+Vamos executar essa automação:
+
+λ rspec
+
+An error occurred while loading ./spec/avengers_spec.rb.
+Failure/Error:
+  describe AvengersHeadQuarters do
+    it "deve adicionar um vingador" do
+      hq = AvengersHeadQuarters.new
+
+      hq.put("Spiderman")
+      expect(hq).to eql "Spiderman"
+    end
+  end
+
+NameError:
+  uninitialized constant AvengersHeadQuarters
+# ./spec/avengers_spec.rb:3:in `<top (required)>'
+
+
+Finished in 0.00003 seconds (files took 0.26952 seconds to load)
+0 examples, 0 failures, 1 error occurred outside of examples
+
+Vamos declarar essa classe e ver o que acontece:
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq).to eql "Spiderman"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima foi apenas declarada a classe em si, mas não há nada dentro dela
+
+Vamos ver agora qual erro que vai dar:
+
+λ rspec
+F.
+
+Failures:
+
+  1) AvengersHeadQuarters deve adicionar um vingador
+     Failure/Error: hq.put("Spiderman")
+
+     NoMethodError:
+       undefined method `put' for #<AvengersHeadQuarters:0x00000000039395b0>
+     # ./spec/avengers_spec.rb:9:in `block (2 levels) in <top (required)>'
+
+Finished in 0.00857 seconds (files took 0.25693 seconds to load)
+2 examples, 1 failure
+
+Failed examples:
+
+rspec ./spec/avengers_spec.rb:6 # AvengersHeadQuarters deve adicionar um vingador
+
+Agora os testes foram executados, tanto que o exemplos_spec.rb passou normalmente, porém agora deu erro de método não definido, pois ele não reconheceu o método put.
+
+
+Então dentro da classe AvengersHeadQuarters vamos criar o método put:
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+  def put(avenger)
+    
+  end
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq).to eql "Spiderman"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima implementamos o método put, que recebe um argumento, porém, onde iremos adicionar esse vingador?
+
+No código abaixo:
+_____________________________________________________________________________________________________
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq).to eql "Spiderman"
+  end
+end
+_____________________________________________________________________________________________________
+Quando invocamos o método put, na sequencia vamos verificar se hq é igual a Spiderman, mas hq é uma variável de instancia de uma classe. Para resolver isso vamos criar um acessor, ou attr_accessor:
+
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+  attr_accessor :list
+
+  def put(avenger)
+	self.list.push(avenger)
+  end
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq).to eql "Spiderman"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima criamos o atributo "list" para a classe AvengersHeadQuarters e complementamos o método put, fazendo ele adicionar o vingador nessa lista com o método push.
+Então o método put recebe um argumento de hq.put("Spiderman") e adiciona Spiderman em list (através do método do ruby push)
+
+Vamos rodar para ver o que vai acontecer agora:
+
+λ rspec
+F.
+
+Failures:
+
+  1) AvengersHeadQuarters deve adicionar um vingador
+     Failure/Error: self.list.push(avenger)
+
+     NoMethodError:
+       undefined method `push' for nil:NilClass
+     # ./spec/avengers_spec.rb:10:in `put'
+     # ./spec/avengers_spec.rb:18:in `block (2 levels) in <top (required)>'
+
+Finished in 0.0106 seconds (files took 0.21664 seconds to load)
+2 examples, 1 failure
+
+Failed examples:
+
+rspec ./spec/avengers_spec.rb:15 # AvengersHeadQuarters deve adicionar um vingador
+
+Ele está falando que não existe método push definido e isso se dá por conta do atributo list não ter sido inicializado, ele é nulo.
+E como é que vamos invocar o método push(método do ruby onde é adicionado um elemento no fim de um array) se nosso array não é um array, e sim nulo?
+Vamos inicializar o atribulo como array através de um construtor:
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+  attr_accessor :list
+
+  def initialize
+    self.list = []
+  end
+
+  def put(avenger)
+    self.list.push(avenger)
+  end
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq).to eql "Spiderman"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima criamos um construtor (sem argumento) que apenas inicializa o atributo como uma lista(array). 
+
+Vamos testar o resultado dessa implementação:
+
+λ rspec
+F.
+
+Failures:
+
+  1) AvengersHeadQuarters deve adicionar um vingador
+     Failure/Error: expect(hq).to eql "Spiderman"
+
+       expected: "Spiderman"
+            got: #<AvengersHeadQuarters:0x0000000003915570 @list=["Spiderman"]>
+
+       (compared using eql?)
+
+       Diff:
+       @@ -1,2 +1,2 @@
+       -"Spiderman"
+       +#<AvengersHeadQuarters:0x0000000003915570 @list=["Spiderman"]>
+
+     # ./spec/avengers_spec.rb:19:in `block (2 levels) in <top (required)>'
+
+Finished in 0.04274 seconds (files took 0.4085 seconds to load)
+2 examples, 1 failure
+
+Failed examples:
+
+rspec ./spec/avengers_spec.rb:15 # AvengersHeadQuarters deve adicionar um vingador
+
+Eu estava esperando Spiderman (string), mas obtive um objeto (<AvengersHeadQuarters:0x0000000003915570, que contém uma lista: @list=["Spiderman"]) e isso está errado
+Vamos precisar comparar o atributo e não a classe, mudando essa parte do código: expect(hq).to eql "Spiderman", ficando assim:
+
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+  attr_accessor :list
+
+  def initialize
+    self.list = []
+  end
+
+  def put(avenger)
+    self.list.push(avenger)
+  end
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq.list).to eql "Spiderman" <===
+  end
+end
+_____________________________________________________________________________________________________
+
+Vamos executar esse código agora para ver o que vai acontecer:
+
+λ rspec
+F.
+
+Failures:
+
+  1) AvengersHeadQuarters deve adicionar um vingador
+     Failure/Error: expect(hq.list).to eql "Spiderman"
+
+       expected: "Spiderman"
+            got: ["Spiderman"]
+
+       (compared using eql?)
+     # ./spec/avengers_spec.rb:19:in `block (2 levels) in <top (required)>'
+
+Finished in 0.02504 seconds (files took 0.19889 seconds to load)
+2 examples, 1 failure
+
+Failed examples:
+
+rspec ./spec/avengers_spec.rb:15 # AvengersHeadQuarters deve adicionar um vingador
+
+O que aconteceu agora é que esperávamos uma string "Spiderman", mas encontramos um array ["Spiderman"]
+
+Vamos corrigir no código:
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+  attr_accessor :list
+
+  def initialize
+    self.list = []
+  end
+
+  def put(avenger)
+    self.list.push(avenger)
+  end
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq.list).to eql ["Spiderman"]
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar o código:
+
+λ rspec
+..
+
+Finished in 0.00919 seconds (files took 0.22717 seconds to load)
+2 examples, 0 failures
+
+Ou podemos usar o -fd que especifica ainda mais o resultado:
+
+λ rspec -fd
+
+AvengersHeadQuarters
+  deve adicionar um vingador
+
+suite rspec
+  soma de valores
+
+Finished in 0.00566 seconds (files took 0.25716 seconds to load)
+2 examples, 0 failures
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

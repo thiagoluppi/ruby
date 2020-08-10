@@ -1,0 +1,162 @@
+Ruby for Testes > Ruby OO > Exceções
+_____________________________________________________________________________________________________
+
+Nessa aula vamos aprender sobre exceções.
+
+Vamos criar o arquivo excecoes.rb e também dentro da pasta rubyOO criar o arquivo ola.txt
+
+A estrurua do códido deve ficar assim:
+
+begin
+	Devo tentar alguma coisa
+rescue
+	Obter um possível erro
+end
+
+Vamos tentar abrir um arquivo em begin, e para isso vamos usar a palavra reservada File
+File.open("./ola")
+
+o ./ é para pegar a raiz do projeto, nesse caso a pasta rubyOO
+
+O código vai ficar assim:
+_____________________________________________________________________________________________________
+begin
+  # Devo tentar alguma coisa
+  arquivo = File.open("./ola")
+rescue
+  # Obter possível erro
+end
+_____________________________________________________________________________________________________
+Ao tentar executar o código acima não obtemos nada, como se tivesse dando algum erro que está sendo mascarado.
+
+Vamos acrescentar um if e mandar ele ler o arquivo caso arquivo for verdadeiro:
+_____________________________________________________________________________________________________
+begin
+  # Devo tentar alguma coisa
+  arquivo = File.open("./ola")
+  if arquivo
+    puts file.read
+  end
+rescue
+  # Obter possível erro
+end
+_____________________________________________________________________________________________________
+Porém mesmo assim parece que há algum erro sendo mascarado que impede a leitura do arquivo ola.txt
+
+E existe mesmo, pois não existe o arquivo ola e sim ola.txt nesse diretório e para vermos isso vamos usar a segunda parte ali, o rescue:
+_____________________________________________________________________________________________________
+begin
+  # Devo tentar alguma coisa
+  arquivo = File.open("./ola")
+  if arquivo
+    puts arquivo.read
+  end
+rescue Exception => e
+  # Obter possível erro
+  puts e
+end
+_____________________________________________________________________________________________________
+No código acima fazermos uso da classe Exception e criamos um argumento "e" que será a variável que deverá conter o erro.
+Quando usamos o puts e, estamos apenas pegando o que a classe Exception enviou como argumento para a variável e, e estamos fazendo o puts
+
+Ao executar o código agora vemos o seguinte:
+
+λ ruby excecoes.rb
+
+No such file or directory @ rb_sysopen - ./ola
+
+Vamos corrigir o código para ver o resultado correto agora:
+_____________________________________________________________________________________________________
+begin
+  # Devo tentar alguma coisa
+  arquivo = File.open("./ola.txt")
+  if arquivo
+    puts arquivo.read
+  end
+rescue Exception => e
+  # Obter possível erro
+  puts e
+end
+_____________________________________________________________________________________________________
+A execução do código acima agora traz o conteúdo do arquivo de texto que estávamos querendo ler:
+
+λ ruby excecoes.rb
+Olá, aula de exceções
+
+Podemos incrementar com mais algumas funções de Exception:
+O professor complementou assim:
+puts e.message
+
+e executou novamente para dar exatamente a mesma mensagem, ele não demonstrou surpresa.
+
+Depois colocou mais um puts:
+puts e.backtrace
+
+Que mostrou o backtrace do erro ficando assim:
+_____________________________________________________________________________________________________
+No such file or directory @ rb_sysopen - ./ola
+excecoes.rb:5:in `initialize'
+excecoes.rb:5:in `open'
+excecoes.rb:5:in `<main>'
+
+O código ficou assim:
+_____________________________________________________________________________________________________
+begin
+  # Devo tentar alguma coisa
+  arquivo = File.open("./ola")
+  if arquivo
+    puts arquivo.read
+  end
+rescue Exception => e
+  # Obter possível erro
+  puts e.message
+  puts e.backtrace
+end
+_____________________________________________________________________________________________________
+
+
+Agora vamos criar uma método e usar exceções dentro dele:
+_____________________________________________________________________________________________________
+def soma(n1, n2)
+  n1 + n2
+rescue Exception => e
+  puts e.message
+end
+
+soma("10", 5)
+_____________________________________________________________________________________________________
+No código acima estamos passando dois argumentos para o método soma, porém estamos usando uma string e um integer, o que obviamente vai dar erro
+
+λ ruby excecoes.rb
+no implicit conversion of Integer into String
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

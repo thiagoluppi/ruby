@@ -1,0 +1,146 @@
+Capybara do ZERO ao Ninja > Automação Web > Validando notificações na página
+_____________________________________________________________________________________________________
+
+Nessa aula vamos validar as notificações da página, como por exemplo, quando é feito o login, se está aparecendo realmente a mensagem que precisa aparecer, etc...
+
+Na hora que logamos, aparece a mensagem na página:
+Olá, Tony Stark. Você acessou a área logada!
+ou quando damos logout, aparece a mensagem:
+Você saiu da área logada!
+
+Vamos procurar novamente por esse elemento e dessa vez não validaremos apenas se ele está visível e sim se a mensagem que aparece naquele momento é a correta:
+
+Para isso vamos usar o recurso ".text" que nos traz o texto do elemento.
+_____________________________________________________________________________________________________
+describe "Forms" do
+  it "login com sucesso" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to eql "Olá, Tony Stark. Você acessou a área logada!"
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar  para ver o resultado:
+
+λ rspec spec\forms_spec.rb -fd
+
+Forms
+
+DevTools listening on ws://127.0.0.1:51556/devtools/browser/79b3fceb-5f85-452c-beba-66e8a624dece
+  login com sucesso (FAILED - 1)
+
+Failures:
+
+  1) Forms login com sucesso
+     Failure/Error: expect(area_logada_texto).to eql "Olá, Tony Stark. Você acessou a área logada!"
+
+       expected: "Olá, Tony Stark. Você acessou a área logada!"
+            got: "Olá, Tony Stark. Você acessou a área logada!\n×"
+
+       (compared using eql?)
+
+       Diff:
+       @@ -1,2 +1,3 @@
+        Olá, Tony Stark. Você acessou a área logada!
+       +×
+
+     # ./spec/forms_spec.rb:18:in `block (2 levels) in <top (required)>'
+
+Finished in 9.18 seconds (files took 1.38 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/forms_spec.rb:4 # Forms login com sucesso
+
+Não deu certo, pois quando pegamos o texto do elemento, ele trouxe também o "x" que representa o ícone de fechar o elemento na página
+Ele esperava uma coisa e recebeu outra, e como estamos querendo EXATAMENTE algo, ao usarmos o .to eql, ele tem que estar EXATAMENTE igual ao que queremos
+
+Para resolver isso vamos usar outro recurso do Capybara, o include:
+_____________________________________________________________________________________________________
+area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Olá, Tony Stark. Você acessou a área logada!"
+_____________________________________________________________________________________________________
+No código acima usamos o include, para verificar se no texto que estamos verificando, inclui o texto que estamos checando
+
+Podemos fazer essa vericação um pouco diferente, sem precisar usar o texto do elemento.
+Vamos usar outro recurso do Capybara, o have_content
+Ele checa diretamente o elemento, sem precisar saber seu texto
+_____________________________________________________________________________________________________
+describe "Forms" do
+  it "login com sucesso" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Olá, Tony Stark. Você acessou a área logada!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+end
+_____________________________________________________________________________________________________
+Ele verifica se no elemento em si, possui o texto que estamos procurando e dessa forma não precisamos lidar com o texto em si.
+O efeito é o mesmo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

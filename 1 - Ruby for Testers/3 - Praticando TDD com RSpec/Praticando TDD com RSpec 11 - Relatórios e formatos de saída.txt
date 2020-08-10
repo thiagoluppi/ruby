@@ -1,0 +1,106 @@
+Ruby for Testes > Praticando TDD com RSpec > Relatórios e formatos de saída
+_____________________________________________________________________________________________________
+
+
+Vamos criar a saída da execução dos nossos testes num relatório, pois até o momento estamos vendo os resultados apenas no console
+
+Podemos, por exemplo, fazer com que a saída da execução seja através de um relatório html:
+
+λ rspec --format html --out report.html
+
+Pronto, o relatório foi criado "report.html" e foi passado o formato html também. Desse modo não houve saída no terminal, e gerou um arquivo no projeto:
+
+unitarios
+	- app
+		- bank.rb
+	- spec
+		- bank
+			- saque_conta_corrente_spec.rb
+			- saque_conta_poupanca_spec.rb
+		- avengers_spec.rb
+		- exemplos_spec.rb
+		- spec_helper.rb
+	- .rspec
+	- Gemfile
+	- Gemfile.lock
+	- report.html
+
+Podemos clicar com o botão direito do mouse e pedir para abrir no explorer: reveal in file explorer e desse modo ver o relatório através do browser
+
+Podemos também exibir esse relatório num servidor de CI, como Jenkins, CircleCI, qualquer tipo de servidor que executa builds e para isso precisamos usar o formato do JUnit:
+
+para isso precisamos baixar outra gem.
+
+No arquivo do Gemfile vamos colocar:
+
+gem "rspec_junit_formatter" 
+
+e vamos salvar o arquivo.
+
+De volta ao terminal vamos digitar:
+λ bundle install
+
+Fetching gem metadata from https://rubygems.org/...........
+Resolving dependencies...
+Using bundler 2.0.2
+Using diff-lcs 1.3
+Using rspec-support 3.9.2
+Using rspec-core 3.9.1
+Using rspec-expectations 3.9.1
+Using rspec-mocks 3.9.1
+Using rspec 3.9.0
+Fetching rspec_junit_formatter 0.4.1
+Installing rspec_junit_formatter 0.4.1
+Bundle complete! 2 Gemfile dependencies, 8 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+
+e agora essa gem está instalada vamos digitar no console:
+λ rspec --format RspecJunitFormatter --out report.xml
+
+
+E dessa vez o relatório saiu no formato de JUnit e como um .xml
+
+A saída dele vai ser assim:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="rspec" tests="20" skipped="0" failures="0" errors="0" time="0.011727" timestamp="2020-04-17T19:40:37-03:00" hostname="DESKTOP-DH14PV1">
+<properties>
+<property name="seed" value="56759"/>
+</properties>
+<testcase classname="spec.avengers_spec" name="AvengersHeadQuarters deve adicionar um vingador" file="./spec/avengers_spec.rb" time="0.001326"></testcase>
+<testcase classname="spec.avengers_spec" name="AvengersHeadQuarters deve adicionar uma lista de vingadores" file="./spec/avengers_spec.rb" time="0.002947"></testcase>
+<testcase classname="spec.avengers_spec" name="AvengersHeadQuarters thor deve ser o primeiro da lista" file="./spec/avengers_spec.rb" time="0.001419"></testcase>
+<testcase classname="spec.avengers_spec" name="AvengersHeadQuarters Ironman deve ser o último da lista" file="./spec/avengers_spec.rb" time="0.000061"></testcase>
+<testcase classname="spec.avengers_spec" name="AvengersHeadQuarters deve conter o sobrenome" file="./spec/avengers_spec.rb" time="0.001444"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando o valor é positivo então atualiza saldo" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000057"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando o saldo é zero então exibe mensagem" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000059"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando o saldo é zero e saldo permanece zerado" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000049"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando o saldo é insuficiente então exibe mensagem" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000048"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando o saldo é insuficiente e o saldo permanece o mesmo" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000044"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando supera o limite de saque então exibe mensagem" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000063"></testcase>
+<testcase classname="spec.bank.saque_conta_corrente_spec" name="ContaCorrente Saque quando supera o limite de saque e o saldo permanece o mesmo" file="./spec/bank/saque_conta_corrente_spec.rb" time="0.000043"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando o valor é positivo então atualiza saldo" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000046"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando o saldo é zero então exibe mensagem" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000045"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando o saldo é zero e saldo permanece zerado" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000046"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando o saldo é insuficiente então exibe mensagem" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000044"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando o saldo é insuficiente e o saldo permanece o mesmo" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000051"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando supera o limite de saque então exibe mensagem" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000052"></testcase>
+<testcase classname="spec.bank.saque_conta_poupanca_spec" name="ContaPoupanca Saque quando supera o limite de saque e o saldo permanece o mesmo" file="./spec/bank/saque_conta_poupanca_spec.rb" time="0.000042"></testcase>
+<testcase classname="spec.exemplos_spec" name="suite rspec soma de valores" file="./spec/exemplos_spec.rb" time="0.000044"></testcase>
+</testsuite>
+
+Esse formato é compatível com Jenkins, CircleCI etc...
+
+E para finalizar podemos também fazer com que saia no terminal, é só usar:
+
+λ rspec --format RspecJunitFormatter --out report.xml -fd
+ou
+λ rspec --format html --out report.html -fd
+
+
+
+
+
+
+
+

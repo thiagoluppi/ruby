@@ -1,0 +1,102 @@
+Ruby for Testes > Ruby Básico > Operadores
+
+Vamos falar sobre operadores matemáticos:
+
+criar o arquivo operadores.rb
+_____________________________________________________________________________________________________
+numero1 = 0
+numero2 = 0
+total = 0
+
+puts "Informe o número 1:"
+numero1 = gets.chomp
+
+puts "Informe o número 2:"
+numero2 = gets.chomp
+
+total = numero1 + numero2
+
+puts total
+_____________________________________________________________________________________________________
+No código acima estamos usando um recurso do ruby que pede a digitação de um valor no terminal para o usuário:
+gets.chomp
+
+Ao executar esse código ele não faz uma adição e sim uma concatenação dos valores, por isso ao se entrar com 5 e depois 5 o resultado não será 10 e sim 55
+λ ruby operadores.rb
+Informe o número 1:
+5
+Informe o número 2:
+5
+55
+
+Isso acontece porque ao usar o gets.chomp ele recuperou um valor string e não um valor numérico. para isso temos que converter o valor para numérico:
+gets.chomp.to_i
+
+o to_i converte o valor para inteiro:
+_____________________________________________________________________________________________________
+numero1 = 0
+numero2 = 0
+total = 0
+
+puts "Informe o número 1:"
+numero1 = gets.chomp.to_i
+
+puts "Informe o número 2:"
+numero2 = gets.chomp.to_i
+
+total = numero1 + numero2
+
+puts total
+_____________________________________________________________________________________________________
+
+E agora o resultado disso tudo:
+
+λ ruby operadores.rb
+Informe o número 1:
+5
+Informe o número 2:
+5
+10
+
+Esses operadores podem ser usados para todos eles: adição, multiplicação, divisão e subtração
+
+Agora vamos falar de operadores de comparação:
+_____________________________________________________________________________________________________
+v1 = 1
+v2 = 2
+
+puts v1 > v2
+_____________________________________________________________________________________________________
+O resultado do código acima é false: o puts vai perguntar se v1 é maior que v2 e como ele não é, o resultado vai ser false
+
+!= 		"diferente"
+== 		"igual"
+< 		"menor"
+> 		"maior"
+<= 		"menor ou igual"
+>= 		"maior ou igual"
+eql? 	"igual" "puts v1.eql?(v2)" > v1 equal v2?
+
+lembrando que = é atribuição, então se vc fizer assim:
+puts v1 = v2 ele vai atribuir o valor da variável v2 em v1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

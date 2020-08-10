@@ -1,0 +1,106 @@
+Capybara do ZERO ao Ninja > Automação Web > Bônus Pack: Campos randômicos
+_____________________________________________________________________________________________________
+
+
+Vamos usar a url:
+https://training-wheels-protocol.herokuapp.com/login2
+
+
+Vamos aprender como validar login de campos randômicos:
+Existem 3 campos de login nesse exemplo e o ultimo campo fica mudando entre Ano de Nascimento, Mês de Nascimento e Dia de Nascimento
+
+Vamos aproveitar o código do forms_spec.rb. Vamos copiar todo ele, mas vamos criar outro arquivo chamado login2_spec.rb
+Aproveitando vamos também renomear o forms_spec.rb para login_form_spec.rb para ficar mais parecido com esse e portanto mais organizado
+
+_____________________________________________________________________________________________________
+describe "Login 2", :login2 do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login com campo randômico"
+  end
+  it "login com data de nascimento" do
+    find("#userId").set("stark")
+    find("#passId").set("jarvis!")
+
+    login_form = find("#login")
+
+    case login_form.text
+    when /Dia/
+      find("#day").set("29")
+    when /Mês/
+      find("#month").set("05")
+    else
+      find("#year").set("1970")
+    end
+
+    sleep 2
+
+    click_button("Login")
+
+    expect(find("#flash")).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+end
+_____________________________________________________________________________________________________
+Usamos um case para pegar os campos direntes, utilizando um contains /Dia/ ou /Mês/ o ano é pego no else
+para pegar todo o texto do form:
+
+<form name="login" id="login" action="/authenticate2" method="post">
+     <div class="row">
+      <div class="large-6 small-12 columns">
+        <label for="username">Usuário</label>
+        <input type="text" name="username" id="userId">
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-6 small-12 columns">
+        <label for="password">Senha</label>
+        <input type="password" name="password" id="passId">
+      </div>
+    </div>
+    <div class="row">
+    
+    
+    
+    
+      <div class="large-6 small-12 columns">
+        <label for="year">Ano do Nascimento</label>
+        <input type="text" name="bday" id="year">
+      </div>
+    
+  </div>
+      <button class="radius btn-login" type="submit"><i class="fa fa-2x fa-sign-in"> Login</i></button>
+</form>
+
+Quando o texto Dia aparecia o case executava o código que buscava pelo id find("#day") e assim por diante
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

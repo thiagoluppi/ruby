@@ -1,0 +1,188 @@
+Ruby for Testes > Praticando TDD com RSpec > Validadores e Matchers
+_____________________________________________________________________________________________________
+
+Nessa aula vamos utilizar o mesmo arquivo da aula passada:
+avengers_spec.rb
+
+Vamos conhecer mais algum modos de validar usando o RSpec
+
+Vamos criar mais um caso de teste "it" chamado (it "deve adicionar uma lista de vingadores" do)
+_____________________________________________________________________________________________________
+it "deve adicionar uma lista de vingadores" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Thor")
+    hq.put("Hulk")
+    hq.put("Spiderman")
+	
+	expect(hq.list).to include "Thor"
+end
+_____________________________________________________________________________________________________
+No código acima estamos fazendo uso do include, que valida se algo está incluso. Ele pergunta se "Thor" está incluso na lista de hq
+
+Para validar listas pode-se usar também o método "size" que traz o tamanho da lista (só funciona para listas), ou o tamanho do array:
+expect(hq.list.size).to be > 0
+
+Uma outra forma é verificando booleanamente, fazendo uma pergunta:
+hq.list.size > 0
+o resultado do código acima vai devolver um booleano, que nesse caso vai ser true, pois essa lista é maior que zero. Vamos guardar isso em uma variável:
+res = hq.list.size > 0
+Se vc checar a variável res nesse momento ela terá o valor true.
+
+Ai com ela vc pode fazer a verificação:
+expect(hq.list.size).to be true
+
+No código passado, Meu Primeiro TDD, a verificação:
+expect(hq.list).to eql ["Spiderman"]
+Poderia ser mudada também para include, ai vc apenas verifica a string:
+expect(hq.list).to include "Spiderman"
+
+Mais uma verificação: vamos perguntar se Thor é o primeiro dessa lista:
+_____________________________________________________________________________________________________
+it "thor deve ser o primeiro da lista" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Thor")
+    hq.put("Hulk")
+    hq.put("Spiderman")
+
+    expect(hq.list).to start_with("Thor")
+end
+_____________________________________________________________________________________________________
+No código acima estamos usando a palavra reservada: start_with e estamos literalmente perguntando se a lista começa com a string que passamos
+
+E claro que se tem um start_with, também tem um end_with:
+_____________________________________________________________________________________________________
+it "Ironman deve ser o último da lista" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Thor")
+    hq.put("Hulk")
+    hq.put("Spiderman")
+	hq.put("Ironman")
+
+    expect(hq.list).to end_with("Ironman")
+end
+_____________________________________________________________________________________________________
+No código acima estamos usando a palavra reservada: end_with e estamos literalmente perguntando se a lista termina com a string que passamos
+  
+O Rspec é uma biblioteca que tem vários recursos de validação
+
+Também podemos passar uma expressão regular, quando por exemplo vc quer checar se um texto existe numa frase:
+_____________________________________________________________________________________________________
+it "deve conter o sobrenome" do
+    avenger = "Peter Parker"
+
+    expect(avenger).to match(/Parker/)
+end
+_____________________________________________________________________________________________________
+A variável avenger contém a string "Peter Parker", mas vc quer validar se essa string contém a palavra passada entre as barras /qualquer coisa/
+
+Também podemos usar negativas:
+Fazendo uso do .not_to podemos perguntar se algo não existe, não contém:
+expect(avenger).not_to match(/Luppi/)
+
+O código todo vai ficar assim agora:
+_____________________________________________________________________________________________________
+class AvengersHeadQuarters
+  attr_accessor :list
+
+  def initialize
+    self.list = []
+  end
+
+  def put(avenger)
+    self.list.push(avenger)
+  end
+end
+
+describe AvengersHeadQuarters do
+  it "deve adicionar um vingador" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Spiderman")
+    expect(hq.list).to eql ["Spiderman"]
+  end
+
+  it "deve adicionar uma lista de vingadores" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Thor")
+    hq.put("Hulk")
+    hq.put("Spiderman")
+
+    res = hq.list.size > 0
+
+    expect(res).to be true
+    expect(hq.list).to include "Thor"
+  end
+
+  it "thor deve ser o primeiro da lista" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Thor")
+    hq.put("Hulk")
+    hq.put("Spiderman")
+
+    expect(hq.list).to start_with("Thor")
+  end
+
+  it "Ironman deve ser o último da lista" do
+    hq = AvengersHeadQuarters.new
+
+    hq.put("Thor")
+    hq.put("Hulk")
+    hq.put("Spiderman")
+	hq.put("Ironman")
+
+    expect(hq.list).to end_with("Ironman")
+  end
+
+  it "deve conter o sobrenome" do
+    avenger = "Peter Parker"
+
+    expect(avenger).to match(/Parker/)
+    expect(avenger).not_to match(/Luppi/)
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

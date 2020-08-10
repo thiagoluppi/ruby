@@ -1,0 +1,165 @@
+Capybara do ZERO ao Ninja > Customizações > Screenshot quando o cenário falha
+_____________________________________________________________________________________________________
+
+Na ultima aula implementamos o código no arquivo spec_helper.rb para tirar um print da tela assim que o cenário de teste termina.
+_____________________________________________________________________________________________________
+config.after(:example) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "").tr(" ", "_")
+    page.save_screenshot("log/#{nome}.png")
+end
+_____________________________________________________________________________________________________
+Porém, o "e" passado como argumento não pega apenas a descrição, description, ele pega também o exception, ou seja, quando o cenário falha.
+
+_____________________________________________________________________________________________________
+Vamos fazer um if ternário, ou short if apenas para tirar um print quando o cenário falhar e isso é muito fácil de fazer:
+_____________________________________________________________________________________________________
+config.after(:example) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "").tr(" ", "_")
+    page.save_screenshot("log/#{nome}.png") if (e.exception)
+end
+_____________________________________________________________________________________________________
+Apenas colocando um if no fim da linha já fala pro Ruby que vc quer que o print seja tirado apenas se o cenário falhar.
+
+O código inteiro do spec_helper.rb vai ficar assim:
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+
+  config.before(:example) do
+    page.current_window.resize_to(1280, 800)
+  end
+
+  config.after(:example) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "").tr(" ", "_")
+    page.save_screenshot("log/#{nome}.png") if (e.exception)
+  end
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome
+  config.default_max_wait_time = 5
+  config.app_host = "https://training-wheels-protocol.herokuapp.com/"
+end
+_____________________________________________________________________________________________________
+
+Usei o código do arquivo login_form_spec.rb, antigo forms_spec.rb é o código do login normal e criei outro cenário de teste para falhar:
+_____________________________________________________________________________________________________
+describe "Forms", :forms, :smoke do
+  it "login com sucesso" do
+    visit "/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Olá, Tony Stark. Você acessou a área logada!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+
+  it "senha incorreta" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "thiago"
+    fill_in "passId", with: "jarvis!"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "O usuário informado não está cadastrado!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "O usuário informado não está cadastrado!"
+  end
+
+  it "usuario nao cadastrado" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "passId", with: "senha"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Senha é invalida!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Senha é invalida!"
+  end
+
+  it "cenario que falha", :falha do
+    visit "/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Esse texto não existe"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Esse texto não existe"
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

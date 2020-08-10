@@ -1,0 +1,143 @@
+Capybara do ZERO ao Ninja > Automação Web > Preenchendo formulários
+_____________________________________________________________________________________________________
+
+Nessa aula vamos aprender a preencher formulários, como por exemplo formulários de login e para isso vamos criar  um novo arquivo na pasta spec:
+
+forms_spec.rb
+
+Nessa aula vamos aprender a usar mais alguns recursos do Capybara
+- fill_in
+- click_button
+
+fill_in "identificador do elemento da página", with: "o que será preenchido no elemento"
+click_button "identificador do elemento da página"
+
+fill_in "", with: ""
+click_button ""
+
+Vamos visitar novamente a página do training wheels, mas dessa vez a página de login:
+https://training-wheels-protocol.herokuapp.com/login
+
+Vamos clicar com o botão direito do mouse no textbox de usuário e colocar "inspecionar":
+
+Aqui eu copiei a estrutura html da página de login, justamente onde tem o formulário de login.
+
+<form name="login" id="login" action="/authenticate" method="post">
+     <div class="row">
+      <div class="large-6 small-12 columns">
+        <label for="username">Usuário</label>
+        <input type="text" name="username" id="userId">
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-6 small-12 columns">
+        <label for="password">Senha</label>
+        <input type="password" name="password" id="passId">
+      </div>
+    </div>
+      <button class="radius btn-login" type="submit"><i class="fa fa-2x fa-sign-in"> Login</i></button>
+  </form>
+
+Observe que a linha 28 <input type="text" name="username" id="userId"> tem o elemento input, que tem um atributo "name" e um atributo "id" e o Capybara consegue utilizar isso.
+
+Vamos usar os recursos que aprendemos lá em cima e codificar nossa automação:
+_____________________________________________________________________________________________________
+describe "Forms" do
+  it "login com sucesso" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login"
+
+    fill_in "username", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima descrevemos uma suite de teste chamada Forms e um caso de teste chamado "login com sucesso"
+O caso de teste visita a página principal do training-wheels-protocol, clica no link Login, depois preenche o campo de usuário com "stark" e o campo senha com "jarvis!"
+O fill_in nesse código usou o name="username", mas poderia ter usado também o id="userId"
+Ao final ele clica no botão de nome Login:
+<button class="radius btn-login" type="submit"><i class="fa fa-2x fa-sign-in"> Login</i></button>
+
+O código faz apenas isso, não fazendo nenhuma verificação sobre se isso deu certo ou errado. Vamos fazer isso em seguida:
+_____________________________________________________________________________________________________
+describe "Forms" do
+  it "login com sucesso" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login"
+
+    fill_in "username", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+  end
+end
+_____________________________________________________________________________________________________
+No código acima podemos ver que temos mais alguns recursos do Capybara:
+- find()
+- .visible?
+Primeiramente o find, faz exatamente isso mesmo, ele busca um elemento dentro da página.
+find("identificador do elemento da página")
+é possível também guardar o resultado desse find em uma variável, como foi feito.
+O .visible? é um recurso que pergunta se está visível, então a linha:
+visivel = find("#flash").visible? = busca o elemento com id flash (id="flash"), no Capybara se coloca o jogo da velha (#) para identificar "IDs"
+depois guarda o resultado dentro da variável "visivel", que nesse momento guarda um resultado booleano, dado que foi feito uma pergunta no find
+
+E por fim o expect valida se "visivel" é true ou false, na verdade ele espera que seja true, pelo modo como foi escrito: .to be true
+
+O recurso do Capybara fill_in também preenche elementos pelo ID, como falamos acima, por isso vamos mudar um pouco o código para utilizar esses dois recursos:
+_____________________________________________________________________________________________________
+describe "Forms" do
+  it "login com sucesso" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

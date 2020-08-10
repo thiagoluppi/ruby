@@ -1,0 +1,156 @@
+Ruby for Testes > Praticando TDD com RSpec > Ajustando a nomenclatura dos exemplos
+_____________________________________________________________________________________________________
+
+
+O professor falou que no Rspec é boa prática escrever os nomes dos cenários de forma curta e objetivos, por isso vamos ajustar a nomenclatura:
+
+Para isso vamos refator todo os código da aula passada:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 700.00)
+      self.mensagem = "Limite máximo por saque é de R$ 700"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(0.00)
+        @conta_corrente.saca(100.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e saldo permanece zerado" do
+        expect(@conta_corrente.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(500.00)
+        @conta_corrente.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 500.00
+      end
+    end
+
+    context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(701.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Limite máximo por saque é de R$ 700"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+O professor apenas refatorou o código para ficar mais parecido com BDD
+
+E agora quando executamos:
+
+λ rspec spec\saque_spec.rb -fd
+
+ContaCorrente
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+    quando o saldo é zero
+      então exibe mensagem
+      e saldo permanece zerado
+    quando o saldo é insuficiente
+      então exibe mensagem
+      e o saldo permanece o mesmo
+    quando supera o limite de saque
+      então exibe mensagem
+      e o saldo permanece o mesmo
+
+Finished in 0.00971 seconds (files took 0.21283 seconds to load)
+7 examples, 0 failures
+
+Significado de -fd: -fd format documentation, é para deixar a saida da execução nesse formato acima, sem ele ficaria assim:
+
+λ rspec spec\saque_spec.rb
+.......
+
+Finished in 0.01721 seconds (files took 0.20944 seconds to load)
+7 examples, 0 failures
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

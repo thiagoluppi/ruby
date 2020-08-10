@@ -1,0 +1,365 @@
+Ruby for Testes > Praticando TDD com RSpec > Desenvolvendo o saque guiado pelos Testes
+_____________________________________________________________________________________________________
+
+
+Nessa aula também iremos continuar usando o exemplo passado, vamos pegar mais um pedaço dele:
+
+Cenário: Deu ruim não tenho saldo
+Dado que eu tenho R$ 0 em minha conta corrente
+Quando faço um saque de R$ 100
+Então vejo a mensagem "Saldo insuficiente para saque"
+E meu saldo final deve ser R$ 0
+
+Vamos implementar então o cenário de quando o saldo é insuficiente para saque:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    self.saldo -= valor
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+
+      context "quando o saldo é insuficiente" do
+        before(:all) do
+          @conta_corrente = ContaCorrente.new(0.00)
+          @conta_corrente.saca(100.00)
+        end
+
+        it "vejo mensagem" do
+          expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+        end
+
+        it "meu saldo permanece zerado" do
+          expect(conta_corrente.saldo).to eql 0.00
+        end
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+No código acima criamos mais um contexto para representar o cenário quando o saldo é insuficiente
+
+Porém se formos executar o código desse jeito, não vai dar certo, pois precisamos fazer uma validação dentro do método saca:
+_____________________________________________________________________________________________________
+def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+_____________________________________________________________________________________________________
+O método saca agora faz uma verificação, ele pergunta se self.saldo é menor que o valor que queremos sacar, se for menor, ele popula a variável mensagem, senão ele continua a conta
+
+O código vai ficar assim:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+
+      context "quando o saldo é insuficiente" do
+        before(:all) do
+          @conta_corrente = ContaCorrente.new(0.00)
+          @conta_corrente.saca(100.00)
+        end
+
+        it "vejo mensagem" do
+          expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+        end
+
+        it "meu saldo permanece zerado" do
+          expect(@conta_corrente.saldo).to eql 0.00
+        end
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+
+O professor cometeu um erro e nomeou os cenários de forma errada, por isso vamos corrigir ao implementar o próximo cenário:
+
+Cenário: Tenho saldo mas não o suficiente
+Dado que eu tenho R$ 500 em minha conta corrente
+Quando faço um saque de R$ 501
+Então vejo a mensagem "Saldo insuficiente para saque"
+E meu saldo final deve ser R$ 500
+
+Para implementar o cenário acima vamos apenas copiar o outro e mudar os nomes de acordo:
+_____________________________________________________________________________________________________
+class ContaCorrente
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(0.00)
+        @conta_corrente.saca(100.00)
+      end
+
+      it "vejo mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "meu saldo permanece zerado" do
+        expect(@conta_corrente.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(500.00)
+        @conta_corrente.saca(501.00)
+      end
+
+      it "vejo mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "meu saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 500.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Agora vamos implementar o restante do cenário:
+
+Cenário: Limite por saque :(
+Dado que eu tenho R$ 1000 em minha conta corrente
+Quando faço um saque de R$ 701
+Então vejo a mensagem "Limite máximo por saque é de R$ 700"
+E meu saldo final deve ser R$ 1000
+
+O código vai ficar assim:
+_____________________________________________________________________________________________________
+
+class ContaCorrente
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 700.00)
+      self.mensagem = "Limite máximo por saque é de R$ 700"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(0.00)
+        @conta_corrente.saca(100.00)
+      end
+
+      it "vejo mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "meu saldo permanece zerado" do
+        expect(@conta_corrente.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(500.00)
+        @conta_corrente.saca(501.00)
+      end
+
+      it "vejo mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "meu saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 500.00
+      end
+    end
+
+    context "quando o limite diário de saque é ultrapassado" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(701.00)
+      end
+
+      it "vejo mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Limite máximo por saque é de R$ 700"
+      end
+
+      it "meu saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+O método de saca poderia ser implementado assim também:
+_____________________________________________________________________________________________________
+def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    else
+      if (valor > 700.00)
+        self.mensagem = "Limite máximo por saque é de R$ 700"
+      else
+        self.saldo -= valor
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Mas usando elsif é mais a cara do ruby.
+
+Vamos rodar pra ver tudo funcionando:
+
+λ rspec spec\saque_spec.rb -fd
+
+ContaCorrente
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+    quando o saldo é zero
+      vejo mensagem
+      meu saldo permanece zerado
+    quando o saldo é insuficiente
+      vejo mensagem
+      meu saldo permanece o mesmo
+    quando o limite diário de saque é ultrapassado
+      vejo mensagem
+      meu saldo permanece o mesmo
+
+Finished in 0.01314 seconds (files took 0.23249 seconds to load)
+7 examples, 0 failures
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,87 @@
+Instalando o Ruby
+
+Faça o download do Ruby e o instale
+
+Após concluir o download, abra o Cmder e verifique se foi instalado corretamente:
+
+λ ruby --version
+ruby 2.5.5p157 (2019-03-15 revision 67260) [x64-mingw32]
+
+Agora chegou a hora de instalar o ridk para isso faça o comando:
+
+λ ridk install
+
+tecle 3 e dê enter:
+
+λ 3
+
+Após instalar tudo vamos instalar o bundler das gems do ruby:
+
+λ gem install bundler
+
+Após tudo ser instalado com sucesso, vamos checar:
+
+λ bundler --version
+
+Após checar vc pode fazer o comando:
+
+λ gem env
+
+que serve para mostrar toda a configuração do ambiente do ruby para vc ver:
+
+RubyGems Environment:
+  - RUBYGEMS VERSION: 2.7.6.2
+  - RUBY VERSION: 2.5.5 (2019-03-15 patchlevel 157) [x64-mingw32]
+  - INSTALLATION DIRECTORY: C:/Ruby25-x64/lib/ruby/gems/2.5.0
+  - USER INSTALLATION DIRECTORY: C:/Users/Thiago/.gem/ruby/2.5.0
+  - RUBY EXECUTABLE: C:/Ruby25-x64/bin/ruby.exe
+  - EXECUTABLE DIRECTORY: C:/Ruby25-x64/bin
+  - SPEC CACHE DIRECTORY: C:/Users/Thiago/.gem/specs
+  - SYSTEM CONFIGURATION DIRECTORY: C:/ProgramData
+  - RUBYGEMS PLATFORMS:
+    - ruby
+    - x64-mingw32
+  - GEM PATHS:
+     - C:/Ruby25-x64/lib/ruby/gems/2.5.0
+     - C:/Users/Thiago/.gem/ruby/2.5.0
+  - GEM CONFIGURATION:
+     - :update_sources => true
+     - :verbose => true
+     - :backtrace => false
+     - :bulk_threshold => 1000
+  - REMOTE SOURCES:
+     - https://rubygems.org/
+  - SHELL PATH:
+     - C:\Tools\Cmder\bin
+     - C:\Tools\Cmder\vendor\bin
+     - C:\Tools\Cmder\vendor\conemu-maximus5\ConEmu\Scripts
+     - C:\Tools\Cmder\vendor\conemu-maximus5
+     - C:\Tools\Cmder\vendor\conemu-maximus5\ConEmu
+     - C:\Python37\Scripts\
+     - C:\Python37\
+     - C:\Program Files (x86)\Razer Chroma SDK\bin
+     - C:\Program Files\Razer Chroma SDK\bin
+     - C:\ProgramData\DockerDesktop\version-bin
+     - C:\Program Files\Docker\Docker\Resources\bin
+     - C:\Windows\system32
+     - C:\Windows
+     - C:\Windows\System32\Wbem
+     - C:\Windows\System32\WindowsPowerShell\v1.0\
+     - C:\Windows\System32\OpenSSH\
+     - C:\Tools\Cmder\vendor\git-for-windows\usr\bin
+     - C:\Program Files\nodejs\
+     - C:\Tools\selenium
+     - C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common
+     - C:\Ruby25-x64\bin
+     - C:\Users\Thiago\AppData\Local\Microsoft\WindowsApps
+     - C:\Users\Thiago\AppData\Local\Programs\Microsoft VS Code\bin
+     - C:\Users\Thiago\AppData\Roaming\npm
+     - C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR
+     - C:\Ruby25-x64\bin
+     - C:\Users\Thiago\AppData\Local\Microsoft\WindowsApps
+     - C:\Users\Thiago\AppData\Local\Programs\Microsoft VS Code\bin
+     - C:\Users\Thiago\AppData\Roaming\npm
+     - C:\Tools\Cmder\vendor\git-for-windows\cmd
+     - C:\Tools\Cmder\vendor\git-for-windows\mingw64\bin
+     - C:\Tools\Cmder\vendor\git-for-windows\usr\bin
+     - C:\Tools\Cmder

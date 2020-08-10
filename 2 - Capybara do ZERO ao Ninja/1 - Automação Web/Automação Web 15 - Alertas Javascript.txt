@@ -1,0 +1,270 @@
+Capybara do ZERO ao Ninja > Automação Web > Alertas Javascript
+_____________________________________________________________________________________________________
+
+Alertas em JavaScript
+
+url usada na aula:
+https://training-wheels-protocol.herokuapp.com/javascript_alerts
+
+Vamos aprender a validar alertas de JavaScript
+
+Vamos criar na pasta specs o arquivo alerts_spec.rb
+
+Começaremos com nosso código padrão:
+_____________________________________________________________________________________________________
+describe "Alertas de JS" do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Alertas em JavaScript"
+  end
+
+  it "alerta" do
+    click_button "Alerta"
+  end
+end
+_____________________________________________________________________________________________________
+Vamos começar clicando no botão Alerta do site e o mesmo irá exibir uma janela de alerta
+
+Em seguida precisamos validar se a janela de alerta que abre está realmente mostrando a mensagem correta, para isso vamos fazer uso de um recurso do Selenium
+page.driver.browser.switch_to.alert
+
+Vamos pegar o recurso acima e vamos extrair o texto dele, então:
+page.driver.browser.switch_to.alert.text
+_____________________________________________________________________________________________________
+describe "Alertas de JS", :alerts do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Alertas em JavaScript"
+  end
+
+  it "alerta" do
+    click_button "Alerta"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "Isto é uma mensagem de alerta"
+  end
+end
+_____________________________________________________________________________________________________
+podemos também, apenas por curiosidade inserir um puts msg só para ver o texto da mensagem.
+
+
+Agora vamos passar para a segunda mensagem a de confirmação de alerta
+
+Vamos fazer uso mais uma vez do recurso do Selenium,
+page.driver.browser.switch_to.alert.accept
+
+Dessa vez não estamos extraindo o texto e sim usando o recurso .accept que vai clicar no positivo da mensagem a aceitando.
+_____________________________________________________________________________________________________
+describe "Alertas de JS", :alerts do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Alertas em JavaScript"
+  end
+
+  it "alerta" do
+    click_button "Alerta"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "Isto é uma mensagem de alerta"
+  end
+
+  it "sim confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.accept
+
+    expect(page).to have_content "Mensagem confirmada"
+  end
+end
+_____________________________________________________________________________________________________
+
+Agora vamos implementar a não confirmação dessa mensagem, ou seja, quando clicamos em não
+
+_____________________________________________________________________________________________________
+describe "Alertas de JS", :alerts do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Alertas em JavaScript"
+  end
+
+  it "alerta" do
+    click_button "Alerta"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "Isto é uma mensagem de alerta"
+  end
+
+  it "sim confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.accept
+
+    expect(page).to have_content "Mensagem confirmada"
+  end
+
+  it "não confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.dismiss
+
+    expect(page).to have_content "Mensagem não confirmada"
+  end
+end
+_____________________________________________________________________________________________________
+A única diferença é no uso do recurso do Selenium, que agora usamos o .dismiss e não mais o .accept
+Também, é claro, estamos validando uma outra mensagem, agora de negatória.
+
+
+Agora vamos validar o ultimo botão, o de prompt e para isso vamos usar outro recurso do Capybara o accept_prompt
+Porém esse recurso é um pouco mais complicado, ele não será chamado apenas como um método, como vimos acima
+Ele vai realmente virar um bloco de código só dele:
+_____________________________________________________________________________________________________
+accept_prompt(with: "Thiago") do
+      click_button "Prompt"
+      sleep 2
+end
+_____________________________________________________________________________________________________
+Primeira linha - aceita o prompt com o texto Thiago
+Segunda linha - no evento de click_button "Prompt"
+
+_____________________________________________________________________________________________________
+describe "Alertas de JS", :alerts do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Alertas em JavaScript"
+  end
+
+  it "alerta" do
+    click_button "Alerta"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "Isto é uma mensagem de alerta"
+  end
+
+  it "sim confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.accept
+
+    expect(page).to have_content "Mensagem confirmada"
+  end
+
+  it "não confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.dismiss
+
+    expect(page).to have_content "Mensagem não confirmada"
+  end
+
+  it "aceita prompt", :accept_prompt do
+    accept_prompt(with: "Thiago") do
+      click_button "Prompt"
+      sleep 2
+    end
+
+    expect(page).to have_content "Olá, Thiago"
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+O professor deixou um desafio para fazer o caso de teste do não aceita o prompt:
+_____________________________________________________________________________________________________
+describe "Alertas de JS", :alerts do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Alertas em JavaScript"
+  end
+
+  it "alerta" do
+    click_button "Alerta"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "Isto é uma mensagem de alerta"
+  end
+
+  it "sim confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.accept
+
+    expect(page).to have_content "Mensagem confirmada"
+  end
+
+  it "não confirma" do
+    click_button "Confirma"
+
+    msg = page.driver.browser.switch_to.alert.text
+    expect(msg).to eql "E ai confirma?"
+
+    page.driver.browser.switch_to.alert.dismiss
+
+    expect(page).to have_content "Mensagem não confirmada"
+  end
+
+  it "aceita prompt", :accept_prompt do
+    accept_prompt(with: "Thiago") do
+      click_button "Prompt"
+      sleep 2
+    end
+
+    expect(page).to have_content "Olá, Thiago"
+    sleep 3
+  end
+
+  it "não aceita prompt", :dismiss_prompt do
+    dismiss_prompt(with: "") do
+      click_button "Prompt"
+      sleep 3
+    end
+
+    expect(page).to have_content "Olá, null"
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

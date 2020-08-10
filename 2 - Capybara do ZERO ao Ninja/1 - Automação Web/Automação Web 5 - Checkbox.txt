@@ -1,0 +1,206 @@
+Capybara do ZERO ao Ninja > Automação Web > Checkbox
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos aprender como marcar caixas de texto, ou checkbox
+vamos usar o site do professor, na seguinte url:
+https://training-wheels-protocol.herokuapp.com/checkboxes
+
+<form id="checkboxes">
+    <input type="checkbox" value="cap"> Capitão América: O Primeiro Vingador<br>
+    <input type="checkbox" value="iron-man"> Homem de Ferro <br>
+    <input id="thor" type="checkbox" value="thor"> Thor <br>
+    <input type="checkbox" value="the-avengers"> Os Vingadores <br>
+    <input type="checkbox" value="guardians" checked=""> Guardiões da Galáxia <br>
+    <input name="antman" type="checkbox" value="ant-man" checked=""> Homem-Formiga <br>
+    <input type="checkbox" value="black-panther"> Pantera Negra
+</form>
+  
+_____________________________________________________________________________________________________
+describe "Caixas de seleção", :checkbox do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+  end
+
+  it "marcando uma opção" do
+    click_link "Checkboxes"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima vamos fazer um "before each" e vamos colocar o método "visit" dentro dele, para que cada caso de teste execute primeiro esse "visit"
+assim não ficamos repetindo código em todo "it"
+
+before(:each) significa que o código dentro do before será executado para cada(each) cenário de teste "it"
+
+before(:each) 	- blocks are run before each example
+before(:all) 	- blocks are run once before all of the examples in a group (como por exemplo dentro de um describe)
+
+Também vamos implementar o "after" que funciona do mesmo modo, porém ao final de cada "it":
+_____________________________________________________________________________________________________
+describe "Caixas de seleção", :checkbox do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+	click_link "Checkboxes"
+  end
+
+  it "marcando uma opção" do
+    
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Então a cada final de caso de teste iremos aguardar 2 segundos, antes de iniciar o próximo
+
+Mas nosso código só está fazendo isso mesmo, visitando a url no before e clicando no checkboxes, vamos fazer ele marcar a opção Thor:
+_____________________________________________________________________________________________________
+describe "Caixas de seleção", :checkbox do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+	click_link "Checkboxes"
+  end
+
+  it "marcando uma opção" do    
+
+    check("thor")
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Usando o recurso "check", podemos passar o ID do Thor que ele marca a opção facilmente. Podemos  usar o check quando temos o ID ou o Name:
+<input id="thor" type="checkbox" value="thor"> Thor <br>
+<input name="antman" type="checkbox" value="ant-man" checked=""> Homem-Formiga <br>
+
+<form id="checkboxes">
+    <input type="checkbox" value="cap"> Capitão América: O Primeiro Vingador<br>
+    <input type="checkbox" value="iron-man"> Homem de Ferro <br>
+    <input id="thor" type="checkbox" value="thor"> Thor <br>
+    <input type="checkbox" value="the-avengers"> Os Vingadores <br>
+    <input type="checkbox" value="guardians" checked=""> Guardiões da Galáxia <br>
+    <input name="antman" type="checkbox" value="ant-man" checked=""> Homem-Formiga <br>
+    <input type="checkbox" value="black-panther"> Pantera Negra
+</form>
+
+Apenas fazendo isso o Capybara é capaz de marcar essa opção, mas agora vamos ver como desmarcar uma opção:
+_____________________________________________________________________________________________________
+describe "Caixas de seleção", :checkbox do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+	click_link "Checkboxes"
+  end
+
+  it "marcando uma opção" do
+
+    check("thor")
+  end
+
+  it "desmarcando uma opção" do
+    uncheck("antman")
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Mas isso só funciona, como dito, quando o elemento tem ou ID ou Name. Quando ele não tem temos que usar o find:
+find("input[value=cap]")
+Dentro de colchetes, usamos o atributo que queremos usar como parametro de busca, nesse caso, o value. Ele faz assim: busca um elemento do typo input, cujo valor de value é igual a cap
+
+Achado o elemento temos que mandar ele marcar esse elemento:
+.set(true) ou para ficar completo: find("input[value=cap]").set(true)
+_____________________________________________________________________________________________________
+describe "Caixas de seleção", :checkbox do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Checkboxes"
+  end
+
+  it "marcando uma opção" do
+    check("thor")
+  end
+
+  it "desmarcando uma opção" do
+    uncheck("antman")
+  end
+
+  it "marcando com find set true" do
+    find("input[value=cap]").set(true)
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Se temos como marcar um elemento dessa forma, temos como desmarcá-lo também, correto?
+
+Então vamos criar um novo caso de teste:
+_____________________________________________________________________________________________________
+describe "Caixas de seleção", :checkbox do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Checkboxes"
+  end
+
+  it "marcando uma opção" do
+    check("thor")
+  end
+
+  it "desmarcando uma opção" do
+    uncheck("antman")
+  end
+
+  it "marcando com find set true" do
+    find("input[value=cap]").set(true)
+  end
+
+  it "desmarcando com find set false" do
+    find("input[value=guardians]").set(false)
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Agora podemos marcar/desmarcar usando o find com um seletor CSS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

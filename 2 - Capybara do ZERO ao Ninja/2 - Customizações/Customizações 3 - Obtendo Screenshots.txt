@@ -1,0 +1,347 @@
+Capybara do ZERO ao Ninja > Customizações > Obtendo Screenshots
+_____________________________________________________________________________________________________
+
+Nessa aula vamos implementar screen shots, ou os prints da tela
+
+Vamos utilizar o cenário de Login para fazer isso: login_forms_spec.rb e vamos completar o código para englobar os cenários de senha incorreta e usuário não existe:
+_____________________________________________________________________________________________________
+describe "Forms", :forms, :smoke do
+  it "login com sucesso" do
+    visit "/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Olá, Tony Stark. Você acessou a área logada!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+
+  it "senha incorreta" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "thiago"
+    fill_in "passId", with: "jarvis!"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "O usuário informado não está cadastrado!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "O usuário informado não está cadastrado!"
+  end
+
+  it "usuário não cadastrado" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "passId", with: "senha"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Senha é invalida!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Senha é invalida!"
+  end
+end
+_____________________________________________________________________________________________________
+
+Para obter um print do cenário vamos usar o recurso do Capybara page.save_screenshot("caminho onde vc quer salvar/nome do arquivo.extensão do arquivo") ficando assim:
+page.save_screenshot("log/login_com_sucesso.png")
+Vai se criar uma pasta com o nome log e colocar nela uma foto png de nome login_com_sucesso
+_____________________________________________________________________________________________________
+describe "Forms", :forms, :smoke do
+  it "login com sucesso" do
+    visit "/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Olá, Tony Stark. Você acessou a área logada!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+
+    page.save_screenshot("log/login_com_sucesso.png")
+  end
+
+  it "senha incorreta" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "thiago"
+    fill_in "passId", with: "jarvis!"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "O usuário informado não está cadastrado!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "O usuário informado não está cadastrado!"
+
+    page.save_screenshot("log/senha_incorreta.png")
+  end
+
+  it "usuário não cadastrado" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "passId", with: "senha"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Senha é invalida!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Senha é invalida!"
+
+    page.save_screenshot("log/usuario_nao_cadastrado.png")
+  end
+end
+_____________________________________________________________________________________________________
+Implementamos o print de tela para todos os cenários.
+
+Mas vamos fazer isso de forma um pouco melhor, utilizando o after, por isso vamos remover esse código recém adicionado dos cenários e vamos usar ele
+Mas, nesse ponto teremos um problema, pois como vamos salvar 3 fotos (3 cenários) diferentes se estamos colocando tudo no after?
+
+Vamos utilizar um recurso bem legal do Capybara, que é passar um argumento no after:
+after(:each) do |e|
+    puts e
+end
+
+vamos executar desse modo para ver o que esse "e" vai nos trazer:
+
+λ rspec --tag @forms
+
+Run options: include {:forms=>true}
+
+DevTools listening on ws://127.0.0.1:54348/devtools/browser/3797105b-b7eb-4195-a276-41a920af6194
+#<RSpec::Core::Example "login com sucesso">
+.#<RSpec::Core::Example "senha incorreta">
+.#<RSpec::Core::Example "usuário não cadastrado">
+.
+
+Finished in 17.07 seconds (files took 1.37 seconds to load)
+3 examples, 0 failures
+
+Ele nos trouxe as propriedades dos cenários de teste ou dos "it"s
+agora vamos executar desse modo e ver como vai ficar:
+
+after(:each) do |e|
+    puts e.description
+end
+
+
+λ rspec --tag @forms
+
+Run options: include {:forms=>true}
+
+DevTools listening on ws://127.0.0.1:54709/devtools/browser/56b31336-3f6c-4b48-afd2-3477bf72d877
+login com sucesso
+.senha incorreta
+.usuário não cadastrado
+.
+
+Finished in 16.98 seconds (files took 1.43 seconds to load)
+3 examples, 0 failures
+
+Agora ele só mostrou mesmo os nomes dos cenários de teste e com isso podemos usar o after e fazer com que os prints sejam diferenciados, as fotos vão ficar
+cada uma com seu nome correto.
+Porém vai ficar com espaços: "login com sucesso" precisamos tirar esses espaços
+
+Para resolver isso vamos usar uma técnica de substring do Ruby e o recurso .gsub:
+after(:each) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "")
+end
+
+Isso é uma expressão regular que substitui caracter especial por nada
+
+depois disso vamos usar o .tr(" ", "_") que substitui espaços por underline, ficando assim:
+after(:each) do |e|
+    nome = e.description.gsub(/[^[A-Za-z0-9 ]/, "").tr(" ", "_")
+end
+_____________________________________________________________________________________________________
+describe "Forms", :forms, :smoke do
+  it "login com sucesso" do
+    visit "/"
+
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "password", with: "jarvis!"
+
+    click_button "Login"
+
+    visivel = find("#flash").visible?
+    expect(visivel).to be true
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Olá, Tony Stark. Você acessou a área logada!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+
+  it "senha incorreta" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "thiago"
+    fill_in "passId", with: "jarvis!"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "O usuário informado não está cadastrado!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "O usuário informado não está cadastrado!"
+  end
+
+  it "usuário não cadastrado" do
+    visit "/"
+    click_link "Login"
+
+    fill_in "userId", with: "stark"
+    fill_in "passId", with: "senha"
+
+    click_button "Login"
+
+    area_logada_texto = find("#flash").text
+    expect(area_logada_texto).to include "Senha é invalida!"
+
+    elemento = find("#flash")
+    expect(elemento).to have_content "Senha é invalida!"
+  end
+
+  after(:each) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "").tr(" ", "_")
+    puts nome
+  end
+end
+_____________________________________________________________________________________________________
+Vamos executar para ver a variável nome:
+
+λ rspec --tag @forms
+
+Run options: include {:forms=>true}
+
+DevTools listening on ws://127.0.0.1:56282/devtools/browser/3c8b6cc8-89c7-4a28-98c4-58afba836239
+logincomsucesso
+.senhaincorreta
+.usurionocadastrado
+.
+
+Finished in 18.23 seconds (files took 1.33 seconds to load)
+3 examples, 0 failures
+
+
+Agora ele está conseguindo criar 3 fotos cujos nomes são os nomes dos cenários de teste e os caracteres especiais são removidos
+Mas podemos colocar isso também no spec_helper.rb
+
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+
+  config.before(:example) do
+    page.current_window.resize_to(1280, 800)
+  end
+
+  config.after(:example) do |e|
+    nome = e.description.gsub(/[^A-Za-z0-9 ]/, "").tr(" ", "_")
+    page.save_screenshot("log/#{nome}.png")
+  end
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome
+  config.default_max_wait_time = 5
+  config.app_host = "https://training-wheels-protocol.herokuapp.com/"
+end
+_____________________________________________________________________________________________________
+Fazendo dessa forma, agora todos os nossos exemplos ou cenários de teste de todo o projeto irão tirar um print da tela ao fim de cada cenário.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

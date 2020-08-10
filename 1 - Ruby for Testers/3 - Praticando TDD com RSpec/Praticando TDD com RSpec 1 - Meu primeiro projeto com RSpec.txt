@@ -1,0 +1,187 @@
+Ruby for Testes > Praticando TDD com RSpec > Meu primeiro projeto com RSpec
+_____________________________________________________________________________________________________
+
+
+Criar a pasta unitarios em C:\qafullstack\ruby\unitarios
+
+Acessar a pasta através do console:
+
+λ cd c:\qafullstack\ruby\unitarios\
+
+Após criar a pasta vamos criar a gem "Gemfile", que guarda as dependencias do projeto, nessa pasta com o comando:
+λ bundle init
+
+Writing new Gemfile to c:/qafullstack/ruby/unitarios/Gemfile
+
+Após criar a Gemfile vc pode acessá-la através da pasta unitarios no vscode, ela terá essa estrutura:
+_____________________________________________________________________________________________________
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+# gem "rails"
+_____________________________________________________________________________________________________
+Porém iremos mudar, vamos fazer uma limpeza para preparar o projeto e vamos deixar assim:
+
+_____________________________________________________________________________________________________
+source "https://rubygems.org"
+_____________________________________________________________________________________________________
+Vamos acrescentar agora a gem do rspec, pois iremos trabalhar primeiro com ela. O código agora vai ficar assim:
+
+_____________________________________________________________________________________________________
+source "https://rubygems.org"
+
+gem "rspec"
+_____________________________________________________________________________________________________
+Após salvar o arquivo Gemfile, iremos voltar até o console e digitar o comando:
+λ bundle install
+
+Fetching gem metadata from https://rubygems.org/...........
+Resolving dependencies...
+Using bundler 2.0.2
+Using diff-lcs 1.3
+Fetching rspec-support 3.9.2
+Installing rspec-support 3.9.2
+Fetching rspec-core 3.9.1
+Installing rspec-core 3.9.1
+Fetching rspec-expectations 3.9.1
+Installing rspec-expectations 3.9.1
+Fetching rspec-mocks 3.9.1
+Installing rspec-mocks 3.9.1
+Using rspec 3.9.0
+Bundle complete! 1 Gemfile dependency, 7 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+
+O ruby irá instalar a gem do rspec e para ter certeza disso iremos no fazer o comando:
+λ rspec --version
+
+RSpec 3.9
+  - rspec-core 3.9.1
+  - rspec-expectations 3.9.1
+  - rspec-mocks 3.9.1
+  - rspec-support 3.9.2
+
+Podemos verificar que o rspec 3.9 foi instalado com sucesso
+
+Agora iremos inicializar o projeto do rspec também por linha de comando:
+
+λ rspec --init
+
+  create   .rspec
+  create   spec/spec_helper.rb
+
+Ele criou a estrutura para eu começar a implementar automação com rspec
+
+a pasta spec é onde iremos escrever os cenários de teste
+
+
+Dentro da pasta spec iremos criar um arquivo chamado exemplos_spec.rb
+O "_spec.rb" é necessário para que o programa reconheça que é um teste automatizado. O .rb é porque é em ruby
+
+Nossa primeira automação será muito simples e fará apenas uma verificação de uma conta matemática:
+_____________________________________________________________________________________________________
+describe "suite rspec" do
+  it "soma de valores" do
+    soma = 10 + 5
+
+    expect(soma).to eql 15
+  end
+end
+_____________________________________________________________________________________________________
+No código acima começamos por descrever a suite de teste com a palavra reservada "describe"
+Dentro dessa suite iremos criar um caso de teste com a palavra reservada "it"
+
+O mais importante é a palavra reservada "expect", pois é ela quem faz a validação de assertividade
+No exemplo acima estamos validando (esperando) que soma seja igual a 15: expect(soma).to eql 15 => .to eql significa to equal
+
+Para testar essa automação iremos voltar ao terminal e executar o comando:
+
+λ rspec
+.
+
+Finished in 0.00789 seconds (files took 0.22067 seconds to load)
+1 example, 0 failures
+
+Como podemos verificar ele colocou um pontinho denotando que o teste passou, foi um sucesso e mais para baixo ele printa o tempo, a quantidade de exemplos e falhas
+
+Agora vamos simular um erro:
+_____________________________________________________________________________________________________
+describe "suite rspec" do
+  it "soma de valores" do
+    soma = 10 + 5
+
+    expect(soma).to eql 20
+  end
+end
+_____________________________________________________________________________________________________
+É claro que soma jamais será 20 e por isso ele vai falhar:
+
+λ rspec
+F
+
+Failures:
+
+  1) suite rspec soma de valores
+     Failure/Error: expect(soma).to eql 20
+
+       expected: 20
+            got: 15
+
+       (compared using eql?)
+     # ./spec/exemplos_spec.rb:7:in `block (2 levels) in <top (required)>'
+
+Finished in 0.04984 seconds (files took 0.22245 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/exemplos_spec.rb:4 # suite rspec soma de valores
+
+- expect - Palavra reservada que faz a validação de algo
+- .to eql - usada para checar se algo é igual a algo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

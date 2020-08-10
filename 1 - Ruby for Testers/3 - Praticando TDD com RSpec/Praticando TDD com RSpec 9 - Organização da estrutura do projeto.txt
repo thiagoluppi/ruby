@@ -1,0 +1,305 @@
+Ruby for Testes > Praticando TDD com RSpec > Organização da estrutura do projeto
+_____________________________________________________________________________________________________
+
+
+Nessa aula o professor finalmente vai separar a classe da aplicação de teste como deveria ter sido feito há tempos:
+
+
+Dentro da pasta unitarios vamos criar uma outra pasta chamada "app" que é onde vamos colocar toda a implementação de classe ContaCorrente, então:
+
+unitarios
+	- app
+		- bank.rb
+	- spec
+		- avengers_spec.rb
+		- exemplos_spec.rb
+		- saque_spec.rb
+		- spec_helper.rb
+	- .rspec
+	- Gemfile
+	- Gemfile.lock
+
+Acima é como deve ficar a estrutura do projeto agora
+Repare que .rspec, Gemfile, Gemfile.lock são os arquivos que foram criados lá no começo do projeto
+
+O código vai ficar assim:
+_____________________________________________________________________________________________________
+bank.rb
+
+class ContaCorrente
+  attr_accessor :saldo, :mensagem
+
+  def initialize(saldo)
+    self.saldo = saldo
+  end
+
+  def saca(valor)
+    if (self.saldo < valor)
+      self.mensagem = "Saldo insuficiente para saque"
+    elsif (valor > 700.00)
+      self.mensagem = "Limite máximo por saque é de R$ 700"
+    else
+      self.saldo -= valor
+    end
+  end
+end
+
+################
+
+saque_spec.rb
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(0.00)
+        @conta_corrente.saca(100.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e saldo permanece zerado" do
+        expect(@conta_corrente.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(500.00)
+        @conta_corrente.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 500.00
+      end
+    end
+
+    context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(701.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Limite máximo por saque é de R$ 700"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Vamos tentar executar agora e ver o que acontece:
+
+λ rspec spec\saque_spec.rb -fd
+
+An error occurred while loading ./spec/saque_spec.rb.
+Failure/Error:
+  describe ContaCorrente do
+    describe "Saque" do
+      context "quando o valor é positivo" do
+        before(:all) do
+          @conta_corrente = ContaCorrente.new(1000.00)
+          @conta_corrente.saca(200.00)
+        end
+
+        it "então atualiza saldo" do
+          expect(@conta_corrente.saldo).to eql 800.00
+
+NameError:
+  uninitialized constant ContaCorrente
+# ./spec/saque_spec.rb:3:in `<top (required)>'
+No examples found.
+
+Finished in 0.00004 seconds (files took 0.27916 seconds to load)
+0 examples, 0 failures, 1 error occurred outside of examples
+
+Não deu certo!
+
+Isso acontece porque nosso arquivo de spec não sabe onde está a classe ContaCorrente
+
+Para resolver isso vamos importar nossa classe ContaCorrente para nosso arquivo de teste:
+
+antes de "describe ContaCorrente" vamos digitar:
+
+require_relative "caminho relativo do arquivo que deseja importar"
+
+Como estamos dentro da pasta spec, vamos usar o "../" para subir um nível, dado que o arquivo bank.rb está dentro da pasta unitarios/app. Vamos olhar novamente a estrutura:
+
+unitarios
+	- app			<== queremos importar daqui
+		- bank.rb
+	- spec 			<== estamos aqui
+		- avengers_spec.rb
+		- exemplos_spec.rb
+		- saque_spec.rb
+		- spec_helper.rb
+	- .rspec
+	- Gemfile
+	- Gemfile.lock
+
+Ficando assim:
+_____________________________________________________________________________________________________
+require_relative "../app/bank" ==> repare que não precisa colocar a extensão do arquivo.rb
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+...
+_____________________________________________________________________________________________________
+Vamos executar novamente para testar se deu certo:
+
+λ rspec spec\saque_spec.rb -fd
+
+ContaCorrente
+  Saque
+    quando o valor é positivo
+      então atualiza saldo
+    quando o saldo é zero
+      então exibe mensagem
+      e saldo permanece zerado
+    quando o saldo é insuficiente
+      então exibe mensagem
+      e o saldo permanece o mesmo
+    quando supera o limite de saque
+      então exibe mensagem
+      e o saldo permanece o mesmo
+
+Finished in 0.01056 seconds (files took 0.21865 seconds to load)
+7 examples, 0 failures
+
+Tudo voltou ao normal!
+
+O código completo ficou assim:
+_____________________________________________________________________________________________________
+require_relative "../app/bank"
+
+describe ContaCorrente do
+  describe "Saque" do
+    context "quando o valor é positivo" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(200.00)
+      end
+
+      it "então atualiza saldo" do
+        expect(@conta_corrente.saldo).to eql 800.00
+      end
+    end
+
+    context "quando o saldo é zero" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(0.00)
+        @conta_corrente.saca(100.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e saldo permanece zerado" do
+        expect(@conta_corrente.saldo).to eql 0.00
+      end
+    end
+
+    context "quando o saldo é insuficiente" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(500.00)
+        @conta_corrente.saca(501.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Saldo insuficiente para saque"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 500.00
+      end
+    end
+
+    context "quando supera o limite de saque" do
+      before(:all) do
+        @conta_corrente = ContaCorrente.new(1000.00)
+        @conta_corrente.saca(701.00)
+      end
+
+      it "então exibe mensagem" do
+        expect(@conta_corrente.mensagem).to eql "Limite máximo por saque é de R$ 700"
+      end
+
+      it "e o saldo permanece o mesmo" do
+        expect(@conta_corrente.saldo).to eql 1000.00
+      end
+    end
+  end
+end
+_____________________________________________________________________________________________________
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

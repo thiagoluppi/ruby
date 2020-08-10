@@ -1,0 +1,235 @@
+Capybara do ZERO ao Ninja > Automação Web > Drag and Drop
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos falar sobre drag and drop, arrastar e soltar
+
+Vamos fazer uso da url do professor:
+https://training-wheels-protocol.herokuapp.com/drag_and_drop
+
+Vamos criar um novo arquivo em spec chamado drag_drop_spec.rb
+
+e vamos já criar a estrutura básica que sempre criamos, o before, o visit, o click_link e o after
+
+Vamos até o site e verificar o código html da area "dropável" do team stark, pois é para onde vamos mover a imagem do Homem Aranha
+Seu código html é o seguinte:
+
+<div class="column" draggable="true">
+
+</div>
+
+Assim que fizermos o drop da figura do Homem Aranha nela, ela vai ficar assim:
+
+<div class="column over" draggable="true">
+	<img src="/img/avatars/marvel/4.jpg" class="avenger" alt="Homem Aranha">
+</div>
+
+Agora tem a imagem do Homem Aranha lá dentro dessa div
+
+A outra div vai funcionar da mesma maneira
+
+Temos um pequeno problema, não temos um atributo dessa div que a diferencie bem da outra div, por isso vamos ter que subir um pouco no código para pegar o "elemento pai"
+
+Aqui podemos ver a classe team-stark que nesse momento tem a imagem nele
+<div class="col-md-6 team-stark">
+      <h5>Team Stark</h5>
+		<h5>
+			<div class="column over" draggable="true" style="opacity: 100;">
+				<img src="/img/avatars/marvel/4.jpg" class="avenger" alt="Homem Aranha">
+			</div>
+		</h5>
+</div>
+
+Aqui podemos ver a classe team-cap
+<div class="col-md-6 team-cap">
+      <h5>Team Cap</h5><h5>
+      <div class="column" draggable="true" style="opacity: 100;">
+
+      </div>
+    </h5>
+</div>
+
+Encontramos nossa diferença e vamos usar isso para mostrar ao Capybara como ele deve pegar esses elementos
+Podemos observar que a div dos teams, não é uma div dropável(draggable="true"), por isso não podemos pegar apenas ela, pois não funcionaria, temos que a partir dela, chegar à outra
+
+Quando estamos buscando através da classe de um elemento, temos que usar o ponto (. + o nome da classe), 
+nesse caso para encontrarmos a classe pai, do time stark fazemos assim: .team-stark
+porém, sabemos que apenas isso não vai resolver, pois não queremos apenas o elemento pai, queremos o elemento com a classe dropável,
+por isso vamos usar (.team-stark .column)
+estamos partindo de team-stark e chegando até column
+
+Vamos ver isso no código:
+_____________________________________________________________________________________________________
+describe "Drag and Drop", :drop do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Drag and Drop"
+  end
+
+  it "Homem Aranha pertence ao time do Stark" do
+    stark = find(".team-stark .column")
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+gravamos o elemento na variável stark. Observe também que temos que colocar um espaço entre as classes
+
+
+Agora também precisamos identificar a imagem que vamos mover para a div:
+<img src="/img/avatars/marvel/4.jpg" class="avenger" alt="Homem Aranha">
+
+vamos então criar um seletor CSS para ele também e vamos usar Regex como usamos na aula passada:
+("img[alt$=Aranha]) = pegue o elemento do tipo img, cujo atributo alt termine com Aranha
+
+Começa com Pantera: ^=Pantera
+Termina com Aranha: $=Aranha
+Contém Blade: *=Blade
+
+Vamos ver como isso fica no código:
+_____________________________________________________________________________________________________
+describe "Drag and Drop", :drop do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Drag and Drop"
+  end
+
+  it "Homem Aranha pertence ao time do Stark" do
+    stark = find(".team-stark .column")
+
+    spiderman = find("img[alt$=Aranha]")
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Então agora temos já identificado o elemento para onde a imagem vai:
+stark = find(".team-stark .column") e também gravamos em uma variável
+
+E identificamos também a imagem, o que vai ser arrastado, para esse elemento:
+spiderman = find("img[alt$=Aranha]") e também gravamos em uma variável
+
+Agora precisamos fazer com o que o Capybara arraste a imagem!
+_____________________________________________________________________________________________________
+describe "Drag and Drop", :drop do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Drag and Drop"
+  end
+
+  it "Homem Aranha pertence ao time do Stark" do
+    stark = find(".team-stark .column")
+
+    spiderman = find("img[alt$=Aranha]")
+    spiderman.drag_to stark
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+Usando o recurso .drag_to fazemos isso facilmente:
+spiderman.drag_to stark
+Isso também daria certo:
+find("img[alt$=Aranha]").drag_to find(".team-stark .column")
+Mas fica muito grande e dificil de entender!!
+
+Agora precisamos fazer a validação de que a imagem foi realmente movida para a outra div e para isso vamos usar um recurso do Capybara, "have_css"
+_____________________________________________________________________________________________________
+describe "Drag and Drop", :drop do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Drag and Drop"
+  end
+
+  it "Homem Aranha pertence ao time do Stark" do
+    stark = find(".team-stark .column")
+
+    spiderman = find("img[alt$=Aranha]")
+    spiderman.drag_to stark
+
+    expect(stark).to have_css "img[alt$=Aranha]"
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+expect(stark).to have_css "img[alt$=Aranha]"
+Esperamos que o elemento, a div, stark contenha o css "img[alt$=Aranha]"
+Apenas isso já garante que a imagem foi de fato arrastada para a outra div.
+Mas e se quisermos também garantir que a outra div realmente ficou vazia?
+
+Vamos precisar identificar também a outra div e perguntar se não contém o css:
+_____________________________________________________________________________________________________
+describe "Drag and Drop", :drop do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Drag and Drop"
+  end
+
+  it "Homem Aranha pertence ao time do Stark" do
+    stark = find(".team-stark .column")
+    cap = find(".team-cap .column")
+
+    spiderman = find("img[alt$=Aranha]")
+    spiderman.drag_to stark
+
+    expect(stark).to have_css "img[alt$=Aranha]"
+    expect(cap).not_to have_css "img[alt$=Aranha]"
+  end
+
+  after(:each) do
+    sleep 2
+  end
+end
+_____________________________________________________________________________________________________
+
+
+Só para brincar eu fiz o seguinte caso de teste:
+_____________________________________________________________________________________________________
+it "ping pong de aranha", :mover do
+    stark = find(".team-stark .column")
+    cap = find(".team-cap .column")
+
+    spiderman = find("img[alt$=Aranha]")
+
+    10.times do
+      sleep 0.2
+      spiderman.drag_to stark
+      sleep 0.2
+      spiderman.drag_to cap
+    end
+end
+_____________________________________________________________________________________________________
+Onde ele fica movendo a imagem para lá e para cá, dez vezes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,309 @@
+Capybara do ZERO ao Ninja > Automação Web > Meu primeiro script de automação
+_____________________________________________________________________________________________________
+
+
+Primeiramente vamos criar a pasta onde vai ficar o projeto do capybara?
+
+C:\Tools\Cmder
+λ mkdir c:\qafullstack\ruby\capy
+
+C:\Tools\Cmder
+λ cd c:\qafullstack\ruby\capy\
+
+O primeiro comando é para criar a pasta capy e o segundo é para acessar essa pasta
+
+Com a pasta criada e agora estando na pasta, vamos iniciar a estrutura do projeto:
+λ bundle init
+
+Writing new Gemfile to c:/qafullstack/ruby/capy/Gemfile
+
+Ele acabou de criar um novo arquivo Gemfile
+
+o conteúdo do Gemfile é o seguinte:
+_____________________________________________________________________________________________________
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+# gem "rails"
+_____________________________________________________________________________________________________
+Porém vamos fazer uma limpeza pra gente cursar as aulas:
+
+Então vai ficar assim:
+_____________________________________________________________________________________________________
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "capybara"
+gem "rspec"
+gem "selenium-webdriver"
+gem "ffi"
+_____________________________________________________________________________________________________
+Vamos acessar o site:
+https://rubygems.org/
+
+e vamos pesquisar as versões estáveis dessa gems, para que possamos congelar no Gemfile
+
+O Gemfile vai ficar assim:
+_____________________________________________________________________________________________________
+source "https://rubygems.org"
+
+gem "capybara", "3.31.0"
+gem "rspec", "3.9.0"
+gem "selenium-webdriver", "3.142.7"
+gem "ffi", "1.12.2"
+_____________________________________________________________________________________________________
+Com a Gemfile agora salva, está na hora de instalar o bundle:
+λ bundle install
+
+Fetching gem metadata from https://rubygems.org/........
+Resolving dependencies...
+Fetching public_suffix 4.0.4
+Installing public_suffix 4.0.4
+Using addressable 2.7.0
+Using bundler 2.0.2
+Using mini_mime 1.0.2
+Using mini_portile2 2.4.0
+Fetching nokogiri 1.10.9 (x64-mingw32)
+Installing nokogiri 1.10.9 (x64-mingw32)
+Using rack 2.2.2
+Using rack-test 1.1.0
+Fetching regexp_parser 1.7.0
+Installing regexp_parser 1.7.0
+Using xpath 3.2.0
+Fetching capybara 3.31.0
+Installing capybara 3.31.0
+Using childprocess 3.0.0
+Using diff-lcs 1.3
+Using ffi 1.12.2 (x64-mingw32)
+Using rspec-support 3.9.2
+Using rspec-core 3.9.1
+Using rspec-expectations 3.9.1
+Using rspec-mocks 3.9.1
+Using rspec 3.9.0
+Fetching rubyzip 2.3.0
+Installing rubyzip 2.3.0
+Fetching selenium-webdriver 3.142.7
+Installing selenium-webdriver 3.142.7
+Bundle complete! 4 Gemfile dependencies, 21 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+Post-install message from nokogiri:
+Nokogiri is built with the packaged libraries: libxml2-2.9.10, libxslt-1.1.34, zlib-1.2.11, libiconv-1.15.
+
+Pronto, está tudo instalado
+
+Agora vamos inicializar um projeto de testes:
+λ rspec --init
+
+  create   .rspec
+  create   spec/spec_helper.rb
+ 
+Vamos voltar até o projeto que está com essa estrutura:
+
+spec
+	- spec_helper.rb
+.rspec
+Gemfile
+Gemfile.lock
+
+Essa é a estrutura do projeto até agora.
+
+Vamos clicar com o direito na pasta spec e criar um novo arquivo:
+hello_spec.rb
+
+É preciso escrever _spec, para que seja reconhecido como um cenário de teste.
+
+
+Vamos criar nosso primeiro teste:
+_____________________________________________________________________________________________________
+describe "Meu primeiro script" do
+  it "visitar a página" do
+    puts "acessando a página"
+  end
+end
+_____________________________________________________________________________________________________
+O "describe" é a suite de teste, e o "it" é para criar o teste ou caso de teste.
+
+
+Vamos testar o código:
+λ rspec
+acessando a página
+.
+
+Finished in 0.00986 seconds (files took 0.33784 seconds to load)
+1 example, 0 failures
+
+Agora que está funcionando vamos fazer uma limpeza no arquivo spec_helper.rb, primeiramente apagando todos os comentários, ele vai ficar assim:
+_____________________________________________________________________________________________________
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+end
+_____________________________________________________________________________________________________
+Esse arquivo é extremamente importante. Não errar.
+
+Agora que o arquivo está desse modo acima, vamos precisar importar o que está faltando para o Rspec trabalhar com Capybara:
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+end
+_____________________________________________________________________________________________________
+Agora o RSpec já sabe trabalhar com o Capybara, e vamos então configurar a DSL do Capybara
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+end
+_____________________________________________________________________________________________________
+Após fazer isso, agora vamos definir a configuração do driver
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome
+end
+_____________________________________________________________________________________________________
+Vamos voltar para o terminal e ver se tudo está certinho:
+λ rspec
+acessando a página
+.
+
+Finished in 0.00734 seconds (files took 1.5 seconds to load)
+1 example, 0 failures
+
+Prontinho, tudo configurado para trabalhar
+
+Vamos voltar até nosso projeto e editar o arquivo hello_spec.rb:
+
+Agora vamos realmente acessar uma página web para fazer nosso primeiro web-teste
+
+A página que iremos visitar é a página do professor:
+https://training-wheels-protocol.herokuapp.com/
+
+O primeiro recurso do capybara que vamos aprender é o "visit", que é usado para visitar uma página web.
+visit "endereço da página"
+_____________________________________________________________________________________________________
+describe "Meu primeiro script" do
+  it "visitar a página" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+  end
+end
+_____________________________________________________________________________________________________
+Para ter certeza de que iremos estar nessa página vamos validar o título da página usando o expect:
+_____________________________________________________________________________________________________
+describe "Meu primeiro script" do
+  it "visitar a página" do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    expect(page.title).to eql "Training Wheels Protocol"
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

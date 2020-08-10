@@ -1,0 +1,186 @@
+Capybara do ZERO ao Ninja > Automação Web > Escopos
+_____________________________________________________________________________________________________
+
+Login com Cadastro
+
+Nessa aula iremos usar a url:
+https://training-wheels-protocol.herokuapp.com/access
+
+
+Nessa aula vamos validar login com cadastro e para isso vamos criar uma cópia de login2 e vamos criar o login3_spec.rb
+
+Como nessa página temos campos com ID's dinâmicos, não iremos mais fazer a busca pelo ID e sim pelo atributo name
+_____________________________________________________________________________________________________
+describe "Login com cadastro", :login3 do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login com Cadastro"
+  end
+  it "login com sucesso" do
+    find("input[name=username]").set("stark")
+    find("input[name=password]").set("jarvis!")
+
+    click_button("Login")
+
+    expect(find("#flash")).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+end
+_____________________________________________________________________________________________________
+Ao executar essa automação:
+
+λ cd c:\qafullstack\ruby\capy\
+
+c:\qafullstack\ruby\capy
+λ rspec --tag @login3
+Run options: include {:login3=>true}
+
+DevTools listening on ws://127.0.0.1:51563/devtools/browser/74c4a78e-813d-4a50-b35e-f647435679f9
+[3188:4084:0423/185301.345:ERROR:browser_switcher_service.cc(238)] XXX Init()
+[3188:4084:0423/185305.698:ERROR:device_event_log_impl.cc(162)] [18:53:05.699] Bluetooth: bluetooth_adapter_winrt.cc:1055 Getting Default Adapter failed.
+F
+
+Failures:
+
+  1) Login com cadastro login com sucesso
+     Failure/Error: find("input[name=username]").set("stark")
+
+     Capybara::Ambiguous:
+       Ambiguous match, found 2 elements matching visible css "input[name=username]"
+     # ./spec/login3_spec.rb:10:in `block (2 levels) in <top (required)>'
+
+Finished in 13.6 seconds (files took 1.52 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/login3_spec.rb:9 # Login com cadastro login com sucesso
+
+Temos um erro de ambiguidade, pois existem dois formulários de login lado a lado na página, nos impedindo de dizer ao Capybara qual é o campo que queremos
+
+
+Nesse momento precisamos utilizar escopo.
+
+Escopo é restringir a busca a uma certa parte, ou a um certo escopo. 
+
+Nada mais é que usar um elemento e a partir desse elemento fazer a busca mais localizada:
+_____________________________________________________________________________________________________
+describe "Login com cadastro", :login3 do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login com Cadastro"
+  end
+  it "login com sucesso" do
+    login_form = find("form[name=login]")
+
+    login_form.find("input[name=username]").set("stark")
+    login_form.find("input[name=password]").set("jarvis!")
+
+    click_button("Entrar")
+
+    expect(find("#flash")).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+end
+_____________________________________________________________________________________________________
+No código acima podemos ver que para encontrar o campo ("input[name=username]") é preciso partir do ("form[name=login]")
+e não apenas do código todo. Então estamos restringindo nossa busca a apenas ao bloco do form de name = login, que é o formulário de login:
+find("form[name=login]").find("input[name=username]").set("stark")
+claro que estamos fazendo uso da variável para a linha não ficar tão grande e para podermos usar em outros lugares, como no campo senha, que segue a mesma lógica
+
+Mas o Capybara tem outras formas de trabalhar com escopo, vamos fazer uso agora do recurso do Capybara chamado within(""):
+_____________________________________________________________________________________________________
+it "login com within", :within do
+    within("form[name=login]") do
+      find("input[name=username]").set("stark")
+      find("input[name=password]").set("jarvis!")
+    end
+
+    click_button("Entrar")
+
+    expect(find("#flash")).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+_____________________________________________________________________________________________________
+Então cria-se um bloco para usar-se within
+
+O código final vai ficar assim:
+_____________________________________________________________________________________________________
+describe "Login com cadastro", :login3 do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+
+    click_link "Login com Cadastro"
+  end
+  it "login com sucesso", :login_sucesso do
+    login_form = find("form[name=login]")
+
+    login_form.find("input[name=username]").set("stark")
+    login_form.find("input[name=password]").set("jarvis!")
+
+    click_button("Entrar")
+    expect(find("#flash")).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+
+  it "login com within", :login_within do
+    within("form[name=login]") do
+      find("input[name=username]").set("stark")
+      find("input[name=password]").set("jarvis!")
+    end
+
+    click_button("Entrar")
+    expect(find("#flash")).to have_content "Olá, Tony Stark. Você acessou a área logada!"
+  end
+
+  it "cadastro com sucesso", :cadastro_sucesso do
+    cadastro_form = find("form[name=signup]")
+
+    cadastro_form.find("input[name=username]").set("Thiago")
+    cadastro_form.find("input[name=password]").set("Luppi")
+
+    click_link("Criar Conta")
+    expect(find("#result")).to have_content "Dados enviados. Aguarde aprovação do seu cadastro!"
+  end
+
+  it "cadastro com within", :cadastro_within do
+    within("form[name=signup]") do
+      find("input[name=username]").set("Thiago")
+      find("input[name=password]").set("Luppi")
+    end
+
+    click_link("Criar Conta")
+    expect(find("#result")).to have_content "Dados enviados. Aguarde aprovação do seu cadastro!"
+  end
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

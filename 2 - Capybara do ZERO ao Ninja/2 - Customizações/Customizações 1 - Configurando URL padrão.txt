@@ -1,0 +1,70 @@
+Capybara do ZERO ao Ninja > Customizações > Configurando URL padrão
+_____________________________________________________________________________________________________
+
+
+Nessa aula vamos aprender a definir uma url padrão sem precisar ficar colocando a url do site do professor em todos os befores
+
+Para isso vamos mudar nosso arquivo do spec_helper.rb
+
+Vamos adicionar uma linha para fazer isso:
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome
+  config.default_max_wait_time = 5
+  config.app_host = "https://training-wheels-protocol.herokuapp.com"
+end
+_____________________________________________________________________________________________________
+Com apenas essa linha, vamos configurar a url padrão:
+config.app_host = "https://training-wheels-protocol.herokuapp.com/"
+
+Agora todos nossos métodos visit deverão ser substituidos por visit "/"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,107 @@
+Capybara do ZERO ao Ninja > Automação Web > Timeous do Capybara (adeus sleeps)
+_____________________________________________________________________________________________________
+
+Nessa aula vamos retirar aquele sleep de 5s que colocamos no código da aula passada:
+_____________________________________________________________________________________________________
+describe "Upload", :upload do
+  before(:each) do
+    @texto = Dir.pwd + "/spec/fixtures/texto.txt"
+    @galaxy = Dir.pwd + "/spec/fixtures/galaxy.jpg"
+
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Upload de arquivos"
+  end
+
+  it "upload com arquivo texto" do
+    attach_file("file-upload", @texto)
+    click_button "Upload"
+
+    div_arquivo = find("#uploaded-file")
+    expect(div_arquivo.text).to eql "texto.txt"
+  end
+
+  it "upload arquivo de imagem" do
+    attach_file("file-upload", @galaxy)
+    click_button "Upload"
+
+    sleep 5
+    div_galaxy = find("#new-image")
+
+    expect(div_galaxy[:src]).to include "/uploads/galaxy.jpg"
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+Esse sleep foi posto porque a página demora em média 5s para carregar a foto e o elemento não carrega antes disso. Por isso o teste dá erro sem ele.
+
+Isso se dá pelo fato do Capybara estar settado para esperar por um elemento carregar por apenas dois segundos:
+Se adicionarmos essa linha ao código podemos visualizar isso:
+Capybara.default_max_wait_time
+Se dermos um puts nele, veremos o número 2
+
+Para não precisar mais colocar o sleep 5 no codigo, podemos aumentar esse tempo default, colocando uma configuração no arquivo spec_helper.
+
+No spec_helper.rb, vamos adicionar esse código então:
+_____________________________________________________________________________________________________
+require "capybara"
+require "capybara/rspec"
+require "selenium-webdriver"
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.include Capybara::DSL
+end
+
+Capybara.configure do |config|
+  config.default_driver = :selenium_chrome
+  config.default_max_wait_time = 5
+end
+_____________________________________________________________________________________________________
+Agora o Capybara espera até o máximo de 5s por um elemento, porém é até 5, se ele encontrar antes, ele já continua, sem a necessidade de esperar os 5s todas as vezes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

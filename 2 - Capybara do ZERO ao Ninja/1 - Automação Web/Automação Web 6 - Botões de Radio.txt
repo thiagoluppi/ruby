@@ -1,0 +1,78 @@
+Capybara do ZERO ao Ninja > Automação Web > Botões de Radio
+_____________________________________________________________________________________________________
+
+
+
+<form id="radios">
+    <input name="movies" type="radio" id="cap" value="cap"> Capitão América: O Primeiro Vingador <br>
+    <input name="movies" type="radio" value="iron-man"> Homem de Ferro <br>
+    <input name="movies" type="radio" id="thor" value="thor"> Thor <br>
+    <input name="movies" type="radio" value="the-avengers"> Os Vingadores <br>
+    <input name="movies" type="radio" value="guardians"> Guardiões da Galáxia <br>
+    <input name="movies" type="radio" value="ant-man"> Homem-Formiga <br>
+    <input name="movies" type="radio" value="black-panther"> Pantera Negra
+</form>
+
+Radio Buttons são também elementos do tipo input e eles tem uma propriedade do tipo radio, type="radio". 
+Observem que o atributo name são iguais para todos eles, isso se dá para que apenas um deles possa ser selecionado por vez.
+Então, com certeza, o atributo name, não é um atributo bom para identificarmos, dado que daria erro de ambiguidade.
+
+Para escolher um dos elementos do tipo radio que tenham um ID é muito fácil, fazemos uso do recurso "choose("nome do ID")
+_____________________________________________________________________________________________________
+describe "Botões de radio", :radio do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Radio Buttons"
+  end
+
+  it "seleção por ID" do
+    choose("cap")
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+No código acima ele está escolhendo o radio do capitão america facilmente, pois há um ID.
+
+Vamos ver agora como fazer para escolher um radio, quando não há um ID disponível no html:
+_____________________________________________________________________________________________________
+describe "Botões de radio", :radio do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Radio Buttons"
+  end
+
+  it "seleção por ID" do
+    choose("cap")
+  end
+
+  it "seleção por find e CSS selector" do
+    find("input[value=guardians]").click
+  end
+
+  after(:each) do
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+No código acima estamos usando um CSS Selector através do find e ao final de tudo estamos mandando o Capybara clicar nesse elemento: .click
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

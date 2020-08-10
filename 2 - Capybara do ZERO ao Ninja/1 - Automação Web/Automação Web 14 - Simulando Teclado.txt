@@ -1,0 +1,182 @@
+Capybara do ZERO ao Ninja > Automação Web > Simulando Teclado
+_____________________________________________________________________________________________________
+
+Botões do Teclado
+
+Para essa aula vamos usar a url?
+https://training-wheels-protocol.herokuapp.com/key_presses
+
+
+Vamos criar na pasta spec o arquivo key_spec.rb
+
+Nessa aula vamos aprender a enviar teclas do teclado para o elemento
+
+para isso vamos fazer uso do recurso do Capybara send_keys:
+_____________________________________________________________________________________________________
+describe "Teclado", :key do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Botões do Teclado"
+  end
+
+  it "enviando teclas" do
+    find("#campo-id").send_keys(:space)
+
+    expect(page).to have_content "You entered: SPACE"
+    sleep 3
+  end
+end
+_____________________________________________________________________________________________________
+
+método send_keys:
+:cancel
+:help
+:backspace
+:tab
+:clear
+:return
+:enter
+:shift
+:control
+:alt
+:pause
+:escape
+:space
+:page_up
+:page_down
+:end
+:home
+:left
+:up
+:right
+:down
+:insert
+:delete
+:semicolon
+:equals
+:numpad0
+:numpad1
+:numpad2
+:numpad3
+:numpad4
+:numpad5
+:numpad6
+:numpad7
+:numpad8
+:numpad9
+:multiply - numeric keypad *
+:add - numeric keypad +
+:separator - numeric keypad 'separator' key ??
+:subtract - numeric keypad -
+:decimal - numeric keypad .
+:divide - numeric keypad /
+:f1
+:f2
+:f3
+:f4
+:f5
+:f6
+:f7
+:f8
+:f9
+:f10
+:f11
+:f12
+:meta
+:command - alias of :meta
+
+Agora vamos criar um array de simbolos
+Para criar um array de simbolos não podemos fazer como um array comum, precisamos usar "%i" antes do array:
+teclas = %i[]
+_____________________________________________________________________________________________________
+describe "Teclado", :key do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Botões do Teclado"
+  end
+
+  it "enviando teclas" do
+    teclas = %i[tab escape space enter shift control alt]
+
+    teclas.each do |tecla|
+      find("#campo-id").send_keys(tecla)
+      expect(page).to have_content "You entered: #{tecla.upcase}"
+      sleep 1
+    end
+  end
+end
+_____________________________________________________________________________________________________
+Primeiro é criada a variável teclas que recebe um array de simbolos
+Segundo é feito um laço para enviar essas teclas ao elemento, usando 
+a variável de laço |tecla| que é criada apenas para pegar cada um dos itens do array
+No expect é feita a validação da frase que aparece no site sempre que uma tecla é digitada e
+é feita interpolação para inserir a variável de laço dentro da string sem conflito
+porém como o site exibe o texto em caixa ALTA, fazemos uso do recurso do Capybara .upcase para converter para CAIXA ALTA também.
+
+Agora vamos criar outro caso de teste "it" para enviar letras.
+Vamos criar um array de strings
+Para criar um array de strings não podemos fazer como um array comum, precisamos usar "%w" antes do array:
+letras = %w[]
+
+_____________________________________________________________________________________________________
+describe "Teclado", :key do
+  before(:each) do
+    visit "https://training-wheels-protocol.herokuapp.com/"
+    click_link "Botões do Teclado"
+  end
+
+  it "enviando teclas" do
+    teclas = %i[tab escape space enter shift control alt]
+
+    teclas.each do |tecla|
+      find("#campo-id").send_keys(tecla)
+      expect(page).to have_content "You entered: #{tecla.upcase}"
+    end
+  end
+
+  it "enviado letras" do
+    letras = %w[a s d f g h k l]
+
+    letras.each do |letra|
+      find("#campo-id").send_keys(letra)
+      expect(page).to have_content "You entered: #{letra.upcase}"
+      sleep 1
+    end
+  end
+end
+_____________________________________________________________________________________________________
+É basicamente a mesma coisa, inclusive a validação
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

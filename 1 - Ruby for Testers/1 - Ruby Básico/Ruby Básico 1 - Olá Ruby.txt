@@ -1,0 +1,40 @@
+Ruby for Testes > Ruby Básico > Olá Ruby
+
+
+Criar o seguinte diretório no C:
+
+qafullstack\ruby\basico
+
+criar um arquivo no vscode: hello.rb
+
+O primeiro comando que vamos aprender é o comando "puts" que serve para printar um texto no console:
+
+_____________________________________________________________________________________________________
+puts "Olá Ruby!"
+_____________________________________________________________________________________________________
+
+Vamos testar esse código indo até o terminal e digitando:
+λ ruby hello.rb
+O resultado será:
+Olá Ruby!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

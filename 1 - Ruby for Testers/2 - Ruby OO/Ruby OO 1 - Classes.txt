@@ -1,0 +1,69 @@
+Ruby for Testes > Ruby OO > Classes
+_____________________________________________________________________________________________________
+
+Vamos conhecer classes no ruby. Uma classe possui atributos e métodos. 
+
+Vamos criar um arquivo chamado classes.rb
+
+_____________________________________________________________________________________________________
+class Carro
+  attr_accessor :nome
+
+  def ligar
+    puts "vc ligou o carro"
+  end
+end
+
+carro = Carro.new
+
+carro.nome = "Civic"
+puts carro.nome
+
+carro.ligar
+_____________________________________________________________________________________________________
+No código acima definimos uma classe chamada Carro, essa classe possui um atributo chamado nome
+Essa classe possui um método chamado ligar 
+Ao escrever "carro = Carro.new" vc instancia um objeto do tipo Carro
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

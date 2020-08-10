@@ -1,0 +1,72 @@
+Ruby for Testes > Ruby Básico > Métodos
+
+
+Para criar um método vamos usar a palavra reservada "def"
+
+A estrutura fica assim:
+def <nomeDoMetodo>
+
+end
+_____________________________________________________________________________________________________
+def diga_ola
+  puts "Olá"
+end
+
+diga_ola
+_____________________________________________________________________________________________________
+O método acima se chama "diga_ola", ele em si apenas printa o puts
+Para chamar um método é usado apenas seu nome: diga_ola
+
+Os métodos em ruby sempre retornam a última instrução do método, não necessitando da palavra return, então não é preciso fazer assim:
+def diga_ola
+  return puts "Olá"
+end
+
+
+Os métodos também podem receber argumentos, como qualquer método:
+_____________________________________________________________________________________________________
+def soma(v1, v2)
+  total = v1 + v2
+end
+
+resultado = soma(5, 5)
+puts resultado
+_____________________________________________________________________________________________________
+O método acima recebe dois argumentos, então para que vc o chame vc precisa passar o nome do método e entre parenteses passar também dois argumentos, senão ele não funciona
+
+
+Podemos então melhorar  nosso primero método diga_ola, fazendo com que ele seja capaz de receber um argumento:
+_____________________________________________________________________________________________________
+def diga_ola(nome)
+  puts "Olá, " + nome
+end
+
+diga_ola("Thiago")
+_____________________________________________________________________________________________________
+Agora sempre que queremos invocar esse método, precisamos passar também um argumento e esse método irá concatenar o argumento junto à frase.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

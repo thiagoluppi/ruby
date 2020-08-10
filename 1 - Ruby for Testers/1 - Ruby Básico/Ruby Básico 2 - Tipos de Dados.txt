@@ -1,0 +1,63 @@
+Ruby for Testes > Ruby Básico > Tipos de Dados
+
+Agora vamos criar outro arquivo dentro do vscode:
+
+dentro da basta basico:
+tipos.rb
+
+O tipo de uma variável em ruby é definido no momento em que vc cria uma variável e atribui valor a ela:
+_____________________________________________________________________________________________________
+produto = "Macbook Air"
+preço = 200.00
+quantidade = 10
+disponível = true
+
+puts produto
+puts preço
+puts quantidade
+puts disponível
+
+puts produto.class
+puts preço.class
+puts quantidade.class
+puts disponível.class
+_____________________________________________________________________________________________________
+No código acima podemos notar que ao se atribuir um valor entre aspas à variável produto, ela se torna uma string
+Ao se atribui valor numérico com casa decimal à variável preço ela se torna um float
+A variável quantidade é um integer e a variável disponível se torna TrueClass porque é um boleano do tipo true, se fosse false, aparecia apenas false
+
+O .class mostra que tipo de variável estamos usando
+
+executando o código:
+λ ruby tipos.rb
+Macbook Air
+200.0
+10
+true
+
+String
+Float
+Integer
+TrueClass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

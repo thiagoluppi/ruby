@@ -1,0 +1,43 @@
+Ruby for Testes > Ruby Básico > Hashes (Objetos do Ruby)
+
+Hashes são modos de se criar um objeto onde temos uma coleção de dados feita através de chave e valor. Parecido muito com array, porém no array vc tem uma coleção feita com índice do tipo inteiro.
+Já no hash vc tem uma coleção feita com chave e valor. Vc consegue ter acesso ao registro através de uma chave:
+_____________________________________________________________________________________________________
+carro = Hash[nome: "Civic", marca: "Honda", cor: "Vermelho"]
+
+puts carro[:marca]
+
+carro[:modelo] = "SI"
+
+puts carro[:modelo]
+
+puts carro
+_____________________________________________________________________________________________________
+No código acima cria-se a variável do tipo Hash e entre colchetes define-se as chaves(nome, marca, cor) e os valores(civic, honda, vermelho)
+O primeiro puts vc acessa a chave marca do objeto carro
+quando se faz carro[:modelo] = "SI" significa que estamos adicionando uma chave modelo com seu valor SI ao objeto
+depois se pega o valor de modelo no puts carro[:modelo] que nesse caso é SI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

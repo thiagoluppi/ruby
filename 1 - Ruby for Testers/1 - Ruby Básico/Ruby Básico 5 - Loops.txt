@@ -1,0 +1,112 @@
+Ruby for Testes > Ruby Básico > Loops
+
+O primeiro laço de repetição que iremos ver é o "times":
+<numeroDeRepetições>.times
+
+Sua estrutura é assim:
+_____________________________________________________________________________________________________
+5.times do
+
+end
+_____________________________________________________________________________________________________
+Podemos também pegar a iteração desse loop, desse modo podemos pegar o contador do laço e usar ele para alguma coisa:
+5.times do |i|
+
+A estrutura fica assim:
+_____________________________________________________________________________________________________
+5.times do |i|
+  puts "Repetindo código " + i.to_s + " vez(es)"
+end
+_____________________________________________________________________________________________________
+Observe como foi usado o ".to_s", pois o "i" representa a interação e ele é inteiro, por isso se vc tentar colocar ele numa frase vai dar erro.
+O ".to_s" converte o valor para string.
+
+
+
+Loop de repetição com "while"
+
+O while vai repetir uma instrução enquanto a condição for verdadeira:
+_____________________________________________________________________________________________________
+init = 0
+while init < 10
+  puts "Repetindo código " + init.to_s + " vez(es)"
+  init += 1
+end
+_____________________________________________________________________________________________________
+No código acima a variável init inicia com zero e dentro do laço do while ela é acrescentada de +1 a cada novo laço até que ela seja igual a 10 e pare a repetição
+
+
+
+Loop de repetição com "for"
+
+O "for" vai repetir o laço a quantidade de vezes que vc determinar:
+_____________________________________________________________________________________________________
+for item in (0...10)
+  puts "Repetindo código " + item.to_s + " vez(es)"
+end
+_____________________________________________________________________________________________________
+O código acima vai repetir o laço dez vezes
+
+
+
+
+Loop de repetição com array usando "each"
+
+
+o "each" é um laço que percorre um array.
+_____________________________________________________________________________________________________
+vingadores = ["Ironman", "Hulk", "Spiderman"]
+
+vingadores.each do |v|
+  puts v
+end
+_____________________________________________________________________________________________________
+No código acima primeiro é criada uma variável do tipo array, colocando 3 nomes de heróis nesse array.
+Usando a variável de iteração "v" o each vai percorrer esse array e cada posição de "v" será um nome de herói
+O resultado é esse:
+
+λ ruby loops.rb
+Ironman
+Hulk
+Spiderman
+
+Vc pode adicionar quantos nomes quiser ao array:
+_____________________________________________________________________________________________________
+vingadores = ["Ironman", "Hulk", "Spiderman", "Thor"]
+
+vingadores.each do |v|
+  puts v
+end
+_____________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
